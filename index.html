@@ -124,8 +124,71 @@ function setupSidebar(){
     <div class="panel"><h3>Selected Player</h3><input id="pLabel" placeholder="Label: X, Z, QB"><input id="pName" placeholder="Optional name"><input id="pColor" type="color" value="#2563eb"><button onclick="updatePlayer()">Update Player</button></div>`;
 
   if(mode==="library")sidebar.innerHTML=`
-    <div class="panel"><h3>Library</h3><input id="librarySearch" placeholder="Search plays, notes, tips..." value="${safe(librarySearch)}" oninput="librarySearch=this.value;setupBank()">
-    <p class="small">Click a play to view routes, notes, blanks, and tips.</p></div>`;
+
+<div class="panel">
+
+    <h3>Library</h3>
+
+    <input
+        id="librarySearch"
+        placeholder="Search plays, notes, tips..."
+        value="${safe(librarySearch)}"
+        oninput="librarySearch=this.value;setupBank()">
+
+    <p class="small">
+        Click a play to view routes, notes,
+        fill-in-the-blanks, and tips.
+    </p>
+
+</div>
+
+<div class="panel">
+
+    <h3>📤 Share Playbook</h3>
+
+    <button
+        class="green"
+        onclick="exportPlaybook()">
+
+        ⬇ Export Playbook
+
+    </button>
+
+    <input
+        id="importFile"
+        type="file"
+        accept=".json,application/json"
+        style="display:none"
+        onchange="importPlaybookFile(event)">
+
+    <button
+        class="purple"
+        onclick="document.getElementById('importFile').click()">
+
+        ⬆ Import Playbook
+
+    </button>
+
+    <p class="small">
+        Export your formations and plays into a single
+        <b>.json</b> playbook.
+
+        <br><br>
+
+        Email the file to teammates.
+
+        <br>
+
+        They simply press <b>Import Playbook</b> and
+        instantly receive every formation,
+        play, note, quiz stat, favorite,
+        fill-in-the-blank, and tip.
+
+    </p>
+
+</div>
+
+`;
 
   if(mode==="play")sidebar.innerHTML=`
     <div class="panel"><h3>Play Creator</h3><p class="small">Pick a formation below. Then click a player and draw their route.</p><input id="playName" placeholder="Play name" value="${safe(currentPlay?.name||"")}"><label class="small">Route Color</label><input id="routeColor" type="color" value="${routeColor}" onchange="routeColor=this.value"></div>
@@ -235,6 +298,97 @@ function startNewPlayForFormation(id){currentFormation=clone(formations.find(f=>
 function savePlay(showAlert){if(!currentFormation||!currentPlay)return alert("Select a formation first.");const nameInput=document.getElementById("playName");if(nameInput)currentPlay.name=nameInput.value||currentPlay.name||"Untitled Play";["noteText","blankAnswer","playTip"].forEach(id=>{const el=document.getElementById(id);if(el){if(id==="playTip")currentPlay.tip=el.value;else currentPlay[id]=el.value}});const i=plays.findIndex(p=>p.id===currentPlay.id);if(i>=0)plays[i]=clone(currentPlay);else plays.push(clone(currentPlay));saveData();setupBank();if(showAlert)alert("Play saved.")}
 function loadPlayForEdit(id){currentPlay=clone(plays.find(p=>p.id===id));currentFormation=clone(formations.find(f=>f.id===currentPlay.formationId));selectedPlayer=null;setupUI();draw()}
 function clearRoutes(){if(!currentPlay)return;currentPlay.routes={};savePlay(false);draw()}function toggleFavorite(id){const p=plays.find(p=>p.id===id);p.favorite=!p.favorite;saveData();setupBank()}
+
+function exportPlaybook(){
+
+    const data={
+        app:"RouteRecall",
+        version:"1.0",
+        exportedAt:new Date().toISOString(),
+        formations,
+        plays
+    };
+
+    const blob=new Blob(
+        [JSON.stringify(data,null,2)],
+        {type:"application/json"}
+    );
+
+    const url=URL.createObjectURL(blob);
+
+    const a=document.createElement("a");
+
+    a.href=url;
+    a.download="RouteRecall_Playbook.json";
+
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
+
+function importPlaybookFile(event){
+
+    const file=event.target.files[0];
+
+    if(!file)return;
+
+    const reader=new FileReader();
+
+    reader.onload=function(){
+
+        try{
+
+            const data=JSON.parse(reader.result);
+
+            if(!data.formations||!data.plays){
+                alert("Invalid RouteRecall playbook.");
+                return;
+            }
+
+            const replace=confirm(
+`Press OK to REPLACE your current playbook.
+
+Press Cancel to MERGE the imported playbook with yours.`
+            );
+
+            if(replace){
+
+                formations=data.formations;
+                plays=data.plays;
+
+            }else{
+
+                formations=[
+                    ...formations,
+                    ...data.formations
+                ];
+
+                plays=[
+                    ...plays,
+                    ...data.plays
+                ];
+
+            }
+
+            saveData();
+
+            setupUI();
+
+            draw();
+
+            alert("Playbook Imported!");
+
+        }catch{
+
+            alert("Unable to import file.");
+
+        }
+
+    };
+
+    reader.readAsText(file);
+
+}
 
 function startQuiz(favsOnly){let pool=plays.filter(p=>Object.keys(p.routes).length);if(favsOnly)pool=pool.filter(p=>p.favorite);if(!pool.length)return alert("No plays available.");let weighted=[];for(const p of pool){const w=1+(p.misses||0)*2;for(let i=0;i<w;i++)weighted.push(p)}loadQuizPlay(weighted[Math.floor(Math.random()*weighted.length)].id)}
 function loadQuizPlay(id){quizPlay=clone(plays.find(p=>p.id===id));currentPlay=quizPlay;currentFormation=clone(formations.find(f=>f.id===quizPlay.formationId));quizUserRoutes={};routePoints=[];results.innerHTML="";lastQuizHadWrong=false;hideSolution();setupUI();renderQuizBlank();draw()}
