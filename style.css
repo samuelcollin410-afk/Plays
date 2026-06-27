@@ -1,0 +1,35 @@
+.playList{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-top:10px;
+}
+
+.quizPlayCard{
+  width:100%;
+  text-align:left;
+  background:linear-gradient(135deg,#374151,#2d3345);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:13px 14px;
+  color:white;
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  box-shadow:0 8px 18px rgba(0,0,0,.18);
+}
+
+.quizPlayCard:hover{
+  transform:translateY(-1px);
+  background:linear-gradient(135deg,#4f63b8,#374151);
+}
+
+.quizPlayCard span{
+  font-size:16px;
+  font-weight:900;
+}
+
+.quizPlayCard small{
+  color:#cbd5e1;
+  font-size:12px;
+}
