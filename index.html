@@ -7,406 +7,61 @@
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:#11141c;color:white;overflow-x:hidden}
-header{height:64px;background:#202534;display:flex;align-items:center;justify-content:space-between;padding:0 18px;gap:12px}
-h1{font-size:23px;margin:0}
+header{height:64px;background:#202534;display:flex;align-items:center;justify-content:space-between;padding:0 18px;gap:12px;position:sticky;top:0;z-index:10}
+h1{font-size:23px;margin:0;white-space:nowrap}
 button,input,select,textarea{border:0;border-radius:14px;padding:10px 14px;font-weight:700}
-button{cursor:pointer;background:#587cff;color:white}
-button:hover{filter:brightness(1.08)}
-button.gray{background:#4b5563}.red{background:#ef4444!important}.green{background:#22c55e!important}.purple{background:#6366f1!important}
+button{cursor:pointer;background:#587cff;color:white}button:hover{filter:brightness(1.08)}
+button.gray{background:#4b5563}.red{background:#ef4444!important}.green{background:#22c55e!important}.purple{background:#6366f1!important}.active{outline:3px solid #fff}
 input,select,textarea{width:100%;margin:6px 0}textarea{min-height:90px;resize:vertical;font-family:Arial}
 main{display:grid;grid-template-columns:275px 1fr;min-height:calc(100vh - 64px)}
-aside{background:#1d2230;padding:16px}
-#stageArea{padding:16px;overflow:auto}
-.panel,.card,.bank,#topBoardBar,.solutionPanel{background:#202637;border-radius:18px;padding:14px;box-shadow:0 8px 22px rgba(0,0,0,.18)}
-.panel{margin-bottom:14px}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.small{font-size:13px;color:#cbd5e1}
-#topBoardBar{margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:12px}
-.boardLayout{display:grid;grid-template-columns:minmax(650px,1fr) 520px;gap:16px;align-items:start}
-.boardWrap{position:relative}
-canvas{background:#f8fafc;border-radius:18px;width:100%;height:auto;touch-action:none;display:block}
-#field{max-width:1250px}#solutionCanvas{width:100%;max-width:520px}
-.bank{margin-top:18px}.bankGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
-.playCard,.quizPlayWrapper{display:flex;gap:10px;align-items:center;margin-top:10px}.smallDelete{width:42px;height:42px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:12px;flex-shrink:0}
-.playBtn,.quizPlayCard,.libraryPlayCard{width:100%;text-align:left;background:linear-gradient(135deg,#374151,#2d3345);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:13px 14px;color:white;display:flex;flex-direction:column;gap:5px}
-.quizPlayCard span,.libraryPlayCard span{font-size:16px;font-weight:900}.quizPlayCard small,.libraryPlayCard small{color:#cbd5e1;font-size:12px}
-.groupHeader{width:100%;display:flex;justify-content:space-between;align-items:center;background:#2d3345;margin-bottom:10px}
-.resultsOverlay{position:absolute;left:26px;bottom:26px;background:rgba(15,23,42,.94);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:14px;width:340px;box-shadow:0 12px 30px rgba(0,0,0,.35)}
-.resultLine{margin:8px 0;font-size:14px}.dot{display:inline-block;width:9px;height:9px;border-radius:999px;margin-right:6px}.goodDot{background:#22c55e}.badDot{background:#ef4444}
-.progressTrack{height:12px;background:#394154;border-radius:999px;overflow:hidden;margin-top:10px}.progressFill{height:100%;background:#22c55e}
-.solutionPanel{display:none}.solutionPanel.show{display:block}.solutionHeader{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
-.tip,.answerBox,.blankBox,.previewBox{background:#293044;border-radius:14px;padding:10px;margin-top:10px;color:#cbd5e1;font-size:13px}
-.blankPrompt{font-weight:900;margin-bottom:8px}.footerNote{text-align:center;color:#9ca3af;font-size:13px;margin-top:14px}
-@media(max-width:1200px){.boardLayout{grid-template-columns:1fr}.solutionPanel{max-width:100%}}
-@media(max-width:850px){main{grid-template-columns:1fr}aside{order:2}.resultsOverlay{position:static;width:auto;margin-top:10px}}
+aside{background:#1d2230;padding:16px}.panel,.card,.bank,#topBoardBar,.solutionPanel,.libraryPreview{background:#202637;border-radius:18px;padding:14px;box-shadow:0 8px 22px rgba(0,0,0,.18)}.panel{margin-bottom:14px}
+#stageArea{padding:16px;overflow:auto}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.small{font-size:13px;color:#cbd5e1}.muted{color:#9ca3af}
+#topBoardBar{margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:12px}.boardLayout{display:grid;grid-template-columns:minmax(650px,1fr) 520px;gap:16px;align-items:start}.boardWrap{position:relative}
+canvas{background:#f8fafc;border-radius:18px;width:100%;height:auto;touch-action:none;display:block}#field{max-width:1250px}#solutionCanvas{width:100%;max-width:520px}
+.bank{margin-top:18px}.bankGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}.playCard,.quizPlayWrapper{display:flex;gap:10px;align-items:center;margin-top:10px}.smallDelete{width:42px;height:42px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:12px;flex-shrink:0}
+.playBtn,.quizPlayCard,.libraryPlayCard{width:100%;text-align:left;background:linear-gradient(135deg,#374151,#2d3345);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:13px 14px;color:white;display:flex;flex-direction:column;gap:5px}.quizPlayCard span,.libraryPlayCard span{font-size:16px;font-weight:900}.quizPlayCard small,.libraryPlayCard small{color:#cbd5e1;font-size:12px}.groupHeader{width:100%;display:flex;justify-content:space-between;align-items:center;background:#2d3345;margin-bottom:10px}
+.resultsOverlay{position:absolute;left:26px;bottom:26px;background:rgba(15,23,42,.94);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:14px;width:340px;box-shadow:0 12px 30px rgba(0,0,0,.35)}.resultLine{margin:8px 0;font-size:14px}.dot{display:inline-block;width:9px;height:9px;border-radius:999px;margin-right:6px}.goodDot{background:#22c55e}.badDot{background:#ef4444}.progressTrack{height:12px;background:#394154;border-radius:999px;overflow:hidden;margin-top:10px}.progressFill{height:100%;background:#22c55e}
+.solutionPanel{display:none}.solutionPanel.show{display:block}.solutionHeader{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}.tip,.answerBox,.blankBox,.previewBox{background:#293044;border-radius:14px;padding:10px;margin-top:10px;color:#cbd5e1;font-size:13px}.blankPrompt{font-weight:900;margin-bottom:8px}.footerNote{text-align:center;color:#9ca3af;font-size:13px;margin-top:14px}
+.libraryShell{display:grid;grid-template-columns:310px 1fr;gap:16px}.libraryMenu{background:#171d2b;border-radius:18px;padding:12px;max-height:620px;overflow:auto}.formationTabs{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}.formationTab{background:#2d3345;border:1px solid rgba(255,255,255,.08)}.formationTab.active{background:#587cff}.libraryItem{display:block;width:100%;text-align:left;background:#252c3d;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:10px;margin-bottom:10px}.libraryItem.selected{outline:3px solid #587cff}.libraryThumb{width:100%;height:125px;border-radius:12px;background:#f8fafc;margin-top:8px}.libraryPreview{min-height:620px}.libraryBigBoard{width:100%;max-width:760px;margin-top:10px}.libraryInfoGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-top:12px}.infoCard{background:#293044;border-radius:14px;padding:12px;color:#cbd5e1}.pill{display:inline-block;background:#374151;border-radius:999px;padding:5px 9px;margin:3px;color:#e5e7eb;font-size:12px}
+@media(max-width:1200px){.boardLayout,.libraryShell{grid-template-columns:1fr}.solutionPanel{max-width:100%}}
+@media(max-width:850px){header{height:auto;min-height:64px;align-items:flex-start;padding-top:12px;padding-bottom:12px}main{grid-template-columns:1fr}aside{order:2}.resultsOverlay{position:static;width:auto;margin-top:10px}}
 </style>
 </head>
-
 <body>
-<header>
-  <h1>🏈 RouteRecall</h1>
-  <div class="row">
-    <button onclick="setMode('formation')">Formation Builder</button>
-    <button onclick="setMode('library')">Library</button>
-    <button onclick="setMode('play')">Play Creator</button>
-    <button onclick="setMode('quiz')">Quiz Mode</button>
-    <button onclick="setMode('stats')">Stats</button>
-  </div>
-</header>
-
-<main>
-<aside id="sidebar"></aside>
-<section id="stageArea">
-  <div id="topBoardBar"></div>
-
-  <div class="boardLayout">
-    <div class="boardWrap">
-      <canvas id="field" width="1200" height="650"></canvas>
-      <div id="results"></div>
-    </div>
-
-    <div id="solutionPanel" class="solutionPanel">
-      <div class="solutionHeader">
-        <b id="solutionTitle">Correct Play</b>
-        <button class="gray" onclick="toggleSolution()">Hide Solution</button>
-      </div>
-      <canvas id="solutionCanvas" width="720" height="520"></canvas>
-      <div id="solutionAnswers" class="answerBox"></div>
-    </div>
-  </div>
-
-  <div id="quizBlankArea"></div>
-  <div id="bank" class="bank"></div>
-  <div class="footerNote">Correct = 80% or higher · Incorrect = below 80%</div>
-</section>
-</main>
-
+<header><h1>🏈 RouteRecall</h1><div class="row"><button onclick="setMode('formation')">Formation Builder</button><button onclick="setMode('library')">Library</button><button onclick="setMode('play')">Play Creator</button><button onclick="setMode('quiz')">Quiz Mode</button><button onclick="setMode('stats')">Stats</button></div></header>
+<main><aside id="sidebar"></aside><section id="stageArea"><div id="topBoardBar"></div><div class="boardLayout"><div class="boardWrap"><canvas id="field" width="1200" height="650"></canvas><div id="results"></div></div><div id="solutionPanel" class="solutionPanel"><div class="solutionHeader"><b id="solutionTitle">Correct Play</b><button class="gray" onclick="toggleSolution()">Hide Solution</button></div><canvas id="solutionCanvas" width="720" height="520"></canvas><div id="solutionAnswers" class="answerBox"></div></div></div><div id="quizBlankArea"></div><div id="bank" class="bank"></div><div class="footerNote">Correct = 80% or higher · Incorrect = below 80%</div></section></main>
 <script>
-const canvas=document.getElementById("field"),ctx=canvas.getContext("2d");
-const solutionCanvas=document.getElementById("solutionCanvas"),sctx=solutionCanvas.getContext("2d");
-const sidebar=document.getElementById("sidebar"),bank=document.getElementById("bank"),topBoardBar=document.getElementById("topBoardBar"),results=document.getElementById("results");
-const solutionPanel=document.getElementById("solutionPanel"),solutionTitle=document.getElementById("solutionTitle"),solutionAnswers=document.getElementById("solutionAnswers"),quizBlankArea=document.getElementById("quizBlankArea");
-
-let formations=JSON.parse(localStorage.getItem("rr_formations")||"[]");
-let plays=JSON.parse(localStorage.getItem("rr_plays")||"[]");
-let openQuizGroups=JSON.parse(localStorage.getItem("rr_openQuizGroups")||"{}");
-
-let mode="formation",tool="circle",editTool="place",currentFormation=null,currentPlay=null,selectedPlayer=null;
-let dragging=false,drawing=false,routePoints=[],routeColor="#22c55e";
-let quizPlay=null,quizUserRoutes={},endpointWeight=Number(localStorage.getItem("rr_endpointWeight")||"0.25"),lastQuizHadWrong=false;
-let librarySearch="",librarySelectedPlayId=null;
-
-function uid(){return Math.random().toString(36).slice(2,9)}
-function clone(x){return JSON.parse(JSON.stringify(x))}
-function safe(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
-function saveData(){localStorage.setItem("rr_formations",JSON.stringify(formations));localStorage.setItem("rr_plays",JSON.stringify(plays));localStorage.setItem("rr_endpointWeight",endpointWeight);localStorage.setItem("rr_openQuizGroups",JSON.stringify(openQuizGroups))}
-
-function setMode(m){
-  mode=m;selectedPlayer=null;dragging=false;drawing=false;routePoints=[];results.innerHTML="";quizBlankArea.innerHTML="";hideSolution();
-  if(m==="formation"){currentFormation={id:uid(),name:"New Formation",players:[]};currentPlay=null}
-  if(m==="play"){currentFormation=null;currentPlay=null}
-  if(m==="quiz"){currentFormation=null;currentPlay=null;quizPlay=null;quizUserRoutes={}}
-  if(m==="library"){currentFormation=null;currentPlay=null}
-  setupUI();draw();
-}
+const canvas=document.getElementById('field'),ctx=canvas.getContext('2d');const solutionCanvas=document.getElementById('solutionCanvas'),sctx=solutionCanvas.getContext('2d');const sidebar=document.getElementById('sidebar'),bank=document.getElementById('bank'),topBoardBar=document.getElementById('topBoardBar'),results=document.getElementById('results');const solutionPanel=document.getElementById('solutionPanel'),solutionTitle=document.getElementById('solutionTitle'),solutionAnswers=document.getElementById('solutionAnswers'),quizBlankArea=document.getElementById('quizBlankArea');
+let formations=JSON.parse(localStorage.getItem('rr_formations')||'[]');let plays=JSON.parse(localStorage.getItem('rr_plays')||'[]');let openQuizGroups=JSON.parse(localStorage.getItem('rr_openQuizGroups')||'{}');
+let mode='formation',tool='circle',editTool='place',playTool='route',currentFormation=null,currentPlay=null,selectedPlayer=null;let dragging=false,drawing=false,routePoints=[],routeColor='#22c55e';let quizPlay=null,quizUserRoutes={},endpointWeight=Number(localStorage.getItem('rr_endpointWeight')||'0.25'),lastQuizHadWrong=false;let librarySearch='',librarySelectedPlayId=null,libraryFormationFilter='all';
+function uid(){return Math.random().toString(36).slice(2,9)}function clone(x){return JSON.parse(JSON.stringify(x))}function safe(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}function saveData(){localStorage.setItem('rr_formations',JSON.stringify(formations));localStorage.setItem('rr_plays',JSON.stringify(plays));localStorage.setItem('rr_endpointWeight',endpointWeight);localStorage.setItem('rr_openQuizGroups',JSON.stringify(openQuizGroups))}
+function baseFormationForPlay(p){return clone(formations.find(f=>f.id===p?.formationId)||{id:null,name:'Unknown',players:[]})}function formationWithPlayPlayers(p){const f=baseFormationForPlay(p);if(p?.players&&Array.isArray(p.players))f.players=clone(p.players);return f}function getPlayerListForPlay(p){return p?.players&&Array.isArray(p.players)?p.players:(formations.find(f=>f.id===p?.formationId)?.players||[])}
+function setMode(m){mode=m;selectedPlayer=null;dragging=false;drawing=false;routePoints=[];results.innerHTML='';quizBlankArea.innerHTML='';hideSolution();if(m==='formation'){currentFormation={id:uid(),name:'New Formation',players:[]};currentPlay=null}if(m==='play'){currentFormation=null;currentPlay=null}if(m==='quiz'){currentFormation=null;currentPlay=null;quizPlay=null;quizUserRoutes={}}if(m==='library'){currentFormation=null;currentPlay=null}setupUI();draw()}
 function setupUI(){setupTopBar();setupSidebar();setupBank()}
-
-function setupTopBar(){
-  if(mode==="quiz")topBoardBar.innerHTML=`<b>Quiz Board</b><div class="row"><button class="green" onclick="submitQuiz()">Submit</button><button class="gray" onclick="cancelRoute()">Cancel Current Route</button><button class="red" onclick="clearQuizDrawing()">Clear Drawings</button><button class="purple" onclick="redoQuiz()">Redo</button><button class="purple" onclick="nextQuiz()">Next</button><button class="gray" onclick="toggleSolution()">Show Play</button></div>`;
-  else if(mode==="play")topBoardBar.innerHTML=`<b>Play Board</b><div class="row"><button class="green" onclick="savePlay(true)">Save Play</button><button class="gray" onclick="cancelRoute()">Cancel Current Route</button><button class="red" onclick="clearRoutes()">Clear Routes</button></div>`;
-  else topBoardBar.innerHTML=`<b>${mode==="library"?"Play Library":"RouteRecall Whiteboard"}</b>`;
-}
-
-function setupSidebar(){
-  if(mode==="formation")sidebar.innerHTML=`
-    <div class="panel"><h3>Formation Builder</h3><input id="formationName" value="${safe(currentFormation.name)}" placeholder="Formation name">
-    <div class="row"><button onclick="tool='circle';editTool='place'">Circle</button><button onclick="tool='square';editTool='place'">Square</button><button onclick="tool='triangle';editTool='place'">Triangle</button></div>
-    <div class="row"><button class="gray" onclick="editTool='place';setupSidebar()">Move/Add</button><button class="red ${editTool==='delete'?'active':''}" onclick="editTool='delete';setupSidebar()">Delete Mode</button></div>
-    <button class="green" onclick="saveFormationAsNew()">Save as New Formation</button><button class="gray" onclick="newFormation()">Clear Board</button></div>
-    <div class="panel"><h3>Selected Player</h3><input id="pLabel" placeholder="Label: X, Z, QB"><input id="pName" placeholder="Optional name"><input id="pColor" type="color" value="#2563eb"><button onclick="updatePlayer()">Update Player</button></div>`;
-
-  if(mode==="library")sidebar.innerHTML=`
-
-<div class="panel">
-
-    <h3>Library</h3>
-
-    <input
-        id="librarySearch"
-        placeholder="Search plays, notes, tips..."
-        value="${safe(librarySearch)}"
-        oninput="librarySearch=this.value;setupBank()">
-
-    <p class="small">
-        Click a play to view routes, notes,
-        fill-in-the-blanks, and tips.
-    </p>
-
-</div>
-
-<div class="panel">
-
-    <h3>📤 Share Playbook</h3>
-
-    <button
-        class="green"
-        onclick="exportPlaybook()">
-
-        ⬇ Export Playbook
-
-    </button>
-
-    <input
-        id="importFile"
-        type="file"
-        accept=".json,application/json"
-        style="display:none"
-        onchange="importPlaybookFile(event)">
-
-    <button
-        class="purple"
-        onclick="document.getElementById('importFile').click()">
-
-        ⬆ Import Playbook
-
-    </button>
-
-    <p class="small">
-        Export your formations and plays into a single
-        <b>.json</b> playbook.
-
-        <br><br>
-
-        Email the file to teammates.
-
-        <br>
-
-        They simply press <b>Import Playbook</b> and
-        instantly receive every formation,
-        play, note, quiz stat, favorite,
-        fill-in-the-blank, and tip.
-
-    </p>
-
-</div>
-
-`;
-
-  if(mode==="play")sidebar.innerHTML=`
-    <div class="panel"><h3>Play Creator</h3><p class="small">Pick a formation below. Then click a player and draw their route.</p><input id="playName" placeholder="Play name" value="${safe(currentPlay?.name||"")}"><label class="small">Route Color</label><input id="routeColor" type="color" value="${routeColor}" onchange="routeColor=this.value"></div>
-    <div class="panel"><h3>Fill-in Blank / Notes</h3><p class="small">Example: On Elgin 37 Jab, the RBL motions.</p><textarea id="noteText" placeholder="Type the full note...">${safe(currentPlay?.noteText||"")}</textarea><input id="blankAnswer" placeholder="Answer word(s), like RBL" value="${safe(currentPlay?.blankAnswer||"")}"><button onclick="saveNoteToPlay()">Save Note</button></div>
-    <div class="panel"><h3>Tip After Answering</h3><textarea id="playTip" placeholder="Example: RBL should motion across before the jab action.">${safe(currentPlay?.tip||"")}</textarea><button onclick="saveNoteToPlay()">Save Tip</button></div>
-    <div class="panel"><h3>Current</h3><p class="small">Formation: ${safe(currentFormation?.name||"None")}<br>Play: ${safe(currentPlay?.name||"New / unsaved")}</p></div>`;
-
-  if(mode==="quiz")sidebar.innerHTML=`
-    <div class="panel"><h3>Quiz Mode</h3><button onclick="startQuiz(false)">Random All Plays</button><button onclick="startQuiz(true)">Random Favorites</button>
-    <label class="small">Endpoint Importance</label><select onchange="endpointWeight=Number(this.value);saveData()"><option value="0.1">Low</option><option value="0.25" ${endpointWeight===0.25?"selected":""}>Medium</option><option value="0.45" ${endpointWeight===0.45?"selected":""}>High</option></select>
-    <p class="small">Draw routes, answer the blank, then press Submit.</p></div>`;
-
-  if(mode==="stats")sidebar.innerHTML=`<div class="panel"><h3>Stats</h3><p class="small">Most missed plays are listed below.</p></div>`;
-}
-
-function setupBank(){
-  if(mode==="formation"){
-    bank.innerHTML=`<h2>Saved Formations</h2><div class="bankGrid">${formations.map(f=>`
-      <div class="card"><h3>${safe(f.name)}</h3><p class="small">${f.players.length} players</p><div class="row"><button onclick="loadFormationCopy('${f.id}')">Edit Copy</button><button class="red" onclick="deleteFormation('${f.id}')">🗑 Delete</button></div></div>`).join("")||"<p>No formations yet.</p>"}</div>`;
-  }
-
-  if(mode==="library"){
-    const q=librarySearch.trim().toLowerCase();
-    const selected=plays.find(p=>p.id===librarySelectedPlayId);
-    bank.innerHTML=`
-      <h2>Library</h2>
-      ${selected?libraryPreview(selected):""}
-      <div class="bankGrid">
-      ${formations.map(f=>{
-        const formPlays=plays.filter(p=>p.formationId===f.id).filter(p=>{
-          const text=(p.name+" "+(p.noteText||"")+" "+(p.blankAnswer||"")+" "+(p.tip||"")).toLowerCase();
-          return !q||text.includes(q);
-        });
-        if(!formPlays.length && q)return "";
-        return `<div class="card"><h3>${safe(f.name)}</h3><p class="small">${formPlays.length} matching play(s)</p>
-        ${formPlays.map(p=>`<button class="libraryPlayCard" onclick="selectLibraryPlay('${p.id}')"><span>${p.favorite?"⭐ ":""}${safe(p.name)}</span><small>${safe(makeBlankPrompt(p.noteText,p.blankAnswer)||"No blank note yet")}</small></button>`).join("")||"<p class='small'>No plays yet.</p>"}</div>`;
-      }).join("")||"<p>No plays found.</p>"}
-      </div>`;
-  }
-
-  if(mode==="play"){
-    bank.innerHTML=`<h2>Formations and Plays</h2><div class="bankGrid">${formations.map(f=>{
-      const formPlays=plays.filter(p=>p.formationId===f.id);
-      return `<div class="card"><h3>${safe(f.name)}</h3><div class="row"><button onclick="startNewPlayForFormation('${f.id}')">+ New Play</button><button class="red" onclick="deleteFormation('${f.id}')">🗑 Formation</button></div><p class="small">Saved plays</p>
-      ${formPlays.map(p=>`<div class="playCard"><button class="playBtn" onclick="loadPlayForEdit('${p.id}')">${p.favorite?"⭐ ":""}${safe(p.name)}</button><button class="red smallDelete" onclick="deletePlay('${p.id}')">🗑</button></div>`).join("")||"<p class='small'>No plays yet.</p>"}</div>`;
-    }).join("")||"<p>No formations yet.</p>"}</div>`;
-  }
-
-  if(mode==="quiz"){
-    bank.innerHTML=`<h2>Choose a Play to Quiz</h2><div class="bankGrid">${formations.map(f=>{
-      const formPlays=plays.filter(p=>p.formationId===f.id);
-      const isOpen=openQuizGroups[f.id]!==false;
-      return `<div class="card"><button class="groupHeader" onclick="toggleQuizGroup('${f.id}')"><span>${safe(f.name)}</span><span>${isOpen?"▲":"▼"}</span></button><p class="small">${formPlays.length} saved play(s)</p>
-      ${isOpen?`<div class="playList">${formPlays.map(p=>`<div class="quizPlayWrapper"><button class="quizPlayCard" onclick="loadQuizPlay('${p.id}')"><span>${p.favorite?"⭐ ":""}${safe(p.name)}</span><small>Attempts: ${p.attempts||0} · Misses: ${p.misses||0}</small></button><button class="red smallDelete" onclick="deletePlay('${p.id}')">🗑</button></div>`).join("")||"<p class='small'>No plays for this formation yet.</p>"}</div>`:""}</div>`;
-    }).join("")||"<p>No formations yet.</p>"}</div>`;
-  }
-
-  if(mode==="stats"){
-    const sorted=[...plays].sort((a,b)=>(b.misses||0)-(a.misses||0));
-    bank.innerHTML=`<h2>Most Missed Plays</h2><div class="bankGrid">${sorted.map(p=>`<div class="card"><h3>${p.favorite?"⭐ ":""}${safe(p.name)}</h3><p class="small">Attempts: ${p.attempts||0}<br>Misses: ${p.misses||0}</p><div class="row"><button onclick="toggleFavorite('${p.id}')">${p.favorite?"Unfavorite":"Favorite"}</button><button class="red" onclick="deletePlay('${p.id}')">🗑 Delete</button></div></div>`).join("")||"<p>No stats yet.</p>"}</div>`;
-  }
-}
-
-function libraryPreview(p){
-  const f=formations.find(x=>x.id===p.formationId);
-  return `<div class="previewBox"><h3>${safe(p.name)}</h3><p><b>Formation:</b> ${safe(f?.name||"Unknown")}</p>
-  <p><b>Fill-in prompt:</b><br>${safe(makeBlankPrompt(p.noteText,p.blankAnswer)||"None")}</p>
-  <p><b>Correct blank:</b> ${safe(p.blankAnswer||"None")}</p>
-  <p><b>Full note:</b><br>${safe(p.noteText||"None")}</p>
-  <p><b>Tip:</b><br>${safe(p.tip||"None")}</p>
-  <div class="row"><button onclick="loadPlayForEdit('${p.id}');setMode('play')">Edit Play</button><button class="red" onclick="deletePlay('${p.id}')">Delete</button></div></div>`;
-}
-function selectLibraryPlay(id){librarySelectedPlayId=id;const p=plays.find(x=>x.id===id);if(p){currentPlay=clone(p);currentFormation=clone(formations.find(f=>f.id===p.formationId))}setupBank();draw()}
-function toggleQuizGroup(id){openQuizGroups[id]=openQuizGroups[id]===false?true:false;saveData();setupBank()}
-
-function makeBlankPrompt(text,answer){if(!text||!answer)return "";const escaped=answer.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");return text.replace(new RegExp(escaped,"i"),"________")}
-function renderQuizBlank(){if(!quizPlay?.noteText||!quizPlay?.blankAnswer){quizBlankArea.innerHTML="";return}quizBlankArea.innerHTML=`<div class="blankBox"><div class="blankPrompt">${safe(makeBlankPrompt(quizPlay.noteText,quizPlay.blankAnswer))}</div><input id="blankUserAnswer" placeholder="Type the missing word(s)"></div>`}
-function saveNoteToPlay(){if(!currentPlay)return alert("Create or select a play first.");currentPlay.noteText=document.getElementById("noteText")?.value||"";currentPlay.blankAnswer=document.getElementById("blankAnswer")?.value||"";currentPlay.tip=document.getElementById("playTip")?.value||"";savePlay(false);alert("Note/tip saved.")}
-
-function deleteFormation(id){const f=formations.find(x=>x.id===id);if(!f)return;const count=plays.filter(p=>p.formationId===id).length;if(!confirm(`Delete formation "${f.name}"?\nThis will also delete ${count} play(s).`))return;formations=formations.filter(f=>f.id!==id);plays=plays.filter(p=>p.formationId!==id);saveData();setupUI();draw()}
-function deletePlay(id){const p=plays.find(x=>x.id===id);if(!p)return;if(!confirm(`Delete play "${p.name}"?`))return;plays=plays.filter(p=>p.id!==id);if(currentPlay?.id===id)currentPlay=null;if(quizPlay?.id===id){quizPlay=null;quizUserRoutes={};quizBlankArea.innerHTML="";results.innerHTML="";hideSolution()}if(librarySelectedPlayId===id)librarySelectedPlayId=null;saveData();setupUI();draw()}
-
-function mouse(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*(canvas.width/r.width),y:(e.clientY-r.top)*(canvas.height/r.height)}}
-function drawGrid(c,w,h,title){c.clearRect(0,0,w,h);c.fillStyle="#f8fafc";c.fillRect(0,0,w,h);c.strokeStyle="#d1d5db";c.lineWidth=1.7;for(let x=80;x<w;x+=80){c.beginPath();c.moveTo(x,0);c.lineTo(x,h);c.stroke()}for(let y=70;y<h;y+=70){c.beginPath();c.moveTo(0,y);c.lineTo(w,y);c.stroke()}c.fillStyle="#111827";c.font="bold 18px Arial";c.fillText(title,28,35)}
-function drawField(){drawGrid(ctx,canvas.width,canvas.height,mode==="quiz"&&quizPlay?`Quiz: ${quizPlay.name}`:"RouteRecall Whiteboard")}
-function drawPlayerOn(c,p,sx=1,sy=1){const x=p.x*sx,y=p.y*sy,r=27*Math.min(sx,sy);c.save();c.fillStyle=p.color||"#2563eb";c.strokeStyle=selectedPlayer?.id===p.id?"#facc15":"#111827";c.lineWidth=4*Math.min(sx,sy);if(p.shape==="circle"){c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.fill();c.stroke()}else if(p.shape==="square"){c.fillRect(x-r,y-r,r*2,r*2);c.strokeRect(x-r,y-r,r*2,r*2)}else{c.beginPath();c.moveTo(x,y-r*1.15);c.lineTo(x-r*1.15,y+r);c.lineTo(x+r*1.15,y+r);c.closePath();c.fill();c.stroke()}c.fillStyle="white";c.font=`bold ${Math.max(10,17*Math.min(sx,sy))}px Arial`;c.textAlign="center";c.fillText(p.label,x,y+5*Math.min(sx,sy));c.restore()}
-function drawRouteOn(c,points,color="#22c55e"){if(!points||points.length<2)return;c.strokeStyle=color;c.lineWidth=6;c.lineCap="round";c.lineJoin="round";c.beginPath();c.moveTo(points[0].x,points[0].y);for(const p of points)c.lineTo(p.x,p.y);c.stroke();const end=points.at(-1),prev=points[Math.max(0,points.length-8)],ang=Math.atan2(end.y-prev.y,end.x-prev.x);c.beginPath();c.moveTo(end.x,end.y);c.lineTo(end.x-22*Math.cos(ang-.45),end.y-22*Math.sin(ang-.45));c.lineTo(end.x-22*Math.cos(ang+.45),end.y-22*Math.sin(ang+.45));c.closePath();c.fillStyle=color;c.fill()}
-function scaledPoints(points,sx,sy){return points.map(p=>({x:p.x*sx,y:p.y*sy}))}
-function draw(){drawField();if(currentFormation)currentFormation.players.forEach(p=>drawPlayerOn(ctx,p));if((mode==="play"||mode==="library")&&currentPlay){for(const pid in currentPlay.routes)drawRouteOn(ctx,currentPlay.routes[pid].points,currentPlay.routes[pid].color)}if(mode==="quiz"){for(const pid in quizUserRoutes)drawRouteOn(ctx,quizUserRoutes[pid].points,"#22c55e")}if(routePoints.length)drawRouteOn(ctx,routePoints,routeColor);if(solutionPanel.classList.contains("show"))drawSolution()}
-function hitPlayer(x,y){if(!currentFormation)return null;return[...currentFormation.players].reverse().find(p=>Math.hypot(p.x-x,p.y-y)<40)}
-
-canvas.addEventListener("pointerdown",e=>{const m=mouse(e);
-  if(mode==="formation"){const hit=hitPlayer(m.x,m.y);if(editTool==="delete"){if(hit){currentFormation.players=currentFormation.players.filter(p=>p.id!==hit.id);selectedPlayer=null;draw()}return}if(hit){selectedPlayer=hit;dragging=true;fillPlayerInputs()}else{const p={id:uid(),shape:tool,x:m.x,y:m.y,label:"P"+(currentFormation.players.length+1),name:"",color:"#2563eb"};currentFormation.players.push(p);selectedPlayer=p;fillPlayerInputs()}}
-  if(mode==="play"||mode==="quiz"){const hit=hitPlayer(m.x,m.y);if(hit){selectedPlayer=hit;drawing=true;routePoints=[{x:hit.x,y:hit.y},m]}}
-  draw();
-});
-canvas.addEventListener("pointermove",e=>{const m=mouse(e);if(dragging&&selectedPlayer){selectedPlayer.x=m.x;selectedPlayer.y=m.y;draw()}if(drawing){routePoints.push(m);draw()}});
-canvas.addEventListener("pointerup",()=>{if(dragging)dragging=false;if(drawing&&mode==="play"&&selectedPlayer){currentPlay.routes[selectedPlayer.id]={playerLabel:selectedPlayer.label,points:routePoints,color:routeColor};routePoints=[];savePlay(false)}if(drawing&&mode==="quiz"&&selectedPlayer){quizUserRoutes[selectedPlayer.id]={playerLabel:selectedPlayer.label,points:routePoints,color:"#22c55e"};routePoints=[]}drawing=false;setupBank();draw()});
-
-function cancelRoute(){drawing=false;routePoints=[];draw()}function clearQuizDrawing(){quizUserRoutes={};routePoints=[];results.innerHTML="";hideSolution();draw()}function redoQuiz(){if(!quizPlay)return alert("Choose a play first.");quizUserRoutes={};routePoints=[];results.innerHTML="";hideSolution();renderQuizBlank();draw()}function nextQuiz(){startQuiz(false)}
-function fillPlayerInputs(){if(!selectedPlayer)return;if(document.getElementById("pLabel"))document.getElementById("pLabel").value=selectedPlayer.label;if(document.getElementById("pName"))document.getElementById("pName").value=selectedPlayer.name;if(document.getElementById("pColor"))document.getElementById("pColor").value=selectedPlayer.color}
-function updatePlayer(){if(!selectedPlayer)return;selectedPlayer.label=document.getElementById("pLabel").value||selectedPlayer.label;selectedPlayer.name=document.getElementById("pName").value||"";selectedPlayer.color=document.getElementById("pColor").value;draw()}
-function newFormation(){currentFormation={id:uid(),name:"New Formation",players:[]};selectedPlayer=null;setupUI();draw()}
-function saveFormationAsNew(){currentFormation.name=document.getElementById("formationName").value||"Untitled Formation";const f=clone(currentFormation);f.id=uid();formations.push(f);saveData();setupBank();alert("Formation saved.")}
-function loadFormationCopy(id){currentFormation=clone(formations.find(f=>f.id===id));currentFormation.id=uid();currentFormation.name+=" Copy";selectedPlayer=null;setupUI();draw()}
-function startNewPlayForFormation(id){currentFormation=clone(formations.find(f=>f.id===id));currentPlay={id:uid(),name:"",formationId:id,routes:{},attempts:0,misses:0,favorite:false,noteText:"",blankAnswer:"",tip:""};selectedPlayer=null;setupUI();draw()}
-function savePlay(showAlert){if(!currentFormation||!currentPlay)return alert("Select a formation first.");const nameInput=document.getElementById("playName");if(nameInput)currentPlay.name=nameInput.value||currentPlay.name||"Untitled Play";["noteText","blankAnswer","playTip"].forEach(id=>{const el=document.getElementById(id);if(el){if(id==="playTip")currentPlay.tip=el.value;else currentPlay[id]=el.value}});const i=plays.findIndex(p=>p.id===currentPlay.id);if(i>=0)plays[i]=clone(currentPlay);else plays.push(clone(currentPlay));saveData();setupBank();if(showAlert)alert("Play saved.")}
-function loadPlayForEdit(id){currentPlay=clone(plays.find(p=>p.id===id));currentFormation=clone(formations.find(f=>f.id===currentPlay.formationId));selectedPlayer=null;setupUI();draw()}
-function clearRoutes(){if(!currentPlay)return;currentPlay.routes={};savePlay(false);draw()}function toggleFavorite(id){const p=plays.find(p=>p.id===id);p.favorite=!p.favorite;saveData();setupBank()}
-
-function exportPlaybook(){
-
-    const data={
-        app:"RouteRecall",
-        version:"1.0",
-        exportedAt:new Date().toISOString(),
-        formations,
-        plays
-    };
-
-    const blob=new Blob(
-        [JSON.stringify(data,null,2)],
-        {type:"application/json"}
-    );
-
-    const url=URL.createObjectURL(blob);
-
-    const a=document.createElement("a");
-
-    a.href=url;
-    a.download="RouteRecall_Playbook.json";
-
-    a.click();
-
-    URL.revokeObjectURL(url);
-}
-
-function importPlaybookFile(event){
-
-    const file=event.target.files[0];
-
-    if(!file)return;
-
-    const reader=new FileReader();
-
-    reader.onload=function(){
-
-        try{
-
-            const data=JSON.parse(reader.result);
-
-            if(!data.formations||!data.plays){
-                alert("Invalid RouteRecall playbook.");
-                return;
-            }
-
-            const replace=confirm(
-`Press OK to REPLACE your current playbook.
-
-Press Cancel to MERGE the imported playbook with yours.`
-            );
-
-            if(replace){
-
-                formations=data.formations;
-                plays=data.plays;
-
-            }else{
-
-                formations=[
-                    ...formations,
-                    ...data.formations
-                ];
-
-                plays=[
-                    ...plays,
-                    ...data.plays
-                ];
-
-            }
-
-            saveData();
-
-            setupUI();
-
-            draw();
-
-            alert("Playbook Imported!");
-
-        }catch{
-
-            alert("Unable to import file.");
-
-        }
-
-    };
-
-    reader.readAsText(file);
-
-}
-
-function startQuiz(favsOnly){let pool=plays.filter(p=>Object.keys(p.routes).length);if(favsOnly)pool=pool.filter(p=>p.favorite);if(!pool.length)return alert("No plays available.");let weighted=[];for(const p of pool){const w=1+(p.misses||0)*2;for(let i=0;i<w;i++)weighted.push(p)}loadQuizPlay(weighted[Math.floor(Math.random()*weighted.length)].id)}
-function loadQuizPlay(id){quizPlay=clone(plays.find(p=>p.id===id));currentPlay=quizPlay;currentFormation=clone(formations.find(f=>f.id===quizPlay.formationId));quizUserRoutes={};routePoints=[];results.innerHTML="";lastQuizHadWrong=false;hideSolution();setupUI();renderQuizBlank();draw()}
-function resample(points,n=80){if(!points||points.length<2)return[];let d=[0],total=0;for(let i=1;i<points.length;i++){total+=Math.hypot(points[i].x-points[i-1].x,points[i].y-points[i-1].y);d.push(total)}let out=[];for(let k=0;k<n;k++){let target=(k/(n-1))*total,i=d.findIndex(v=>v>=target);if(i<=0){out.push(points[0]);continue}let t=(target-d[i-1])/(d[i]-d[i-1]||1);out.push({x:points[i-1].x+(points[i].x-points[i-1].x)*t,y:points[i-1].y+(points[i].y-points[i-1].y)*t})}return out}
-function scoreRoute(expected,user){if(!expected||!user)return 0;const a=resample(expected),b=resample(user);if(!a.length||!b.length)return 0;let err=0;for(let i=0;i<a.length;i++)err+=Math.hypot(a[i].x-b[i].x,a[i].y-b[i].y);err/=a.length;const endErr=Math.hypot(a.at(-1).x-b.at(-1).x,a.at(-1).y-b.at(-1).y);err=err*(1-endpointWeight)+endErr*endpointWeight;return Math.max(0,Math.round(100-err/3))}
-function normalizeAnswer(s){return String(s||"").trim().toLowerCase().replace(/[^\w\s]/g,"").replace(/\s+/g," ")}
-function submitQuiz(){if(!quizPlay)return alert("Choose a play first.");let correctCount=0,totalCount=0,rows="";lastQuizHadWrong=false;
-  for(const pid in quizPlay.routes){totalCount++;const expected=quizPlay.routes[pid],user=quizUserRoutes[pid],percent=scoreRoute(expected.points,user?.points),correct=percent>=80;if(correct)correctCount++;else lastQuizHadWrong=true;rows+=`<div class="resultLine"><span class="dot ${correct?"goodDot":"badDot"}"></span><b>${safe(expected.playerLabel)}</b>: ${correct?"Correct":"Incorrect"} — ${percent}%</div>`}
-  if(quizPlay.blankAnswer){totalCount++;const userBlank=document.getElementById("blankUserAnswer")?.value||"",blankCorrect=normalizeAnswer(userBlank)===normalizeAnswer(quizPlay.blankAnswer);if(blankCorrect)correctCount++;else lastQuizHadWrong=true;rows+=`<div class="resultLine"><span class="dot ${blankCorrect?"goodDot":"badDot"}"></span><b>Blank</b>: ${blankCorrect?"Correct":"Incorrect"} — Answer: ${safe(quizPlay.blankAnswer)}</div>`}
-  const pct=Math.round((correctCount/Math.max(1,totalCount))*100);results.innerHTML=`<div class="resultsOverlay"><h3>Results</h3>${rows}<p style="color:${lastQuizHadWrong?"#ef4444":"#22c55e"};font-weight:800">${correctCount} / ${totalCount} correct</p>${quizPlay.tip?`<div class="tip"><b>Tip:</b> ${safe(quizPlay.tip)}</div>`:""}<div class="progressTrack"><div class="progressFill" style="width:${pct}%"></div></div></div>`;
-  const playRef=plays.find(p=>p.id===quizPlay.id);if(playRef){playRef.attempts=(playRef.attempts||0)+1;if(lastQuizHadWrong)playRef.misses=(playRef.misses||0)+1;saveData()}if(lastQuizHadWrong)showSolution();setupBank();draw();
-}
-function showSolution(){if(!quizPlay||!currentFormation)return;solutionPanel.classList.add("show");solutionTitle.textContent=`Correct Play (${quizPlay.name})`;drawSolution();solutionAnswers.innerHTML=`<b>Correct Answers</b>${quizPlay.noteText?`<div style="margin-top:8px">${safe(quizPlay.noteText)}</div>`:""}${quizPlay.blankAnswer?`<div style="margin-top:8px"><b>Blank:</b> ${safe(quizPlay.blankAnswer)}</div>`:""}${quizPlay.tip?`<div class="tip"><b>Tip:</b> ${safe(quizPlay.tip)}</div>`:""}`}
-function hideSolution(){solutionPanel.classList.remove("show");solutionAnswers.innerHTML=""}
-function toggleSolution(){if(!quizPlay)return alert("Choose a play first.");solutionPanel.classList.contains("show")?hideSolution():showSolution();draw()}
-function drawSolution(){if(!quizPlay||!currentFormation)return;const sx=solutionCanvas.width/canvas.width,sy=solutionCanvas.height/canvas.height;drawGrid(sctx,solutionCanvas.width,solutionCanvas.height,`Correct: ${quizPlay.name}`);currentFormation.players.forEach(p=>drawPlayerOn(sctx,p,sx,sy));for(const pid in quizPlay.routes){const r=quizPlay.routes[pid];drawRouteOn(sctx,scaledPoints(r.points,sx,sy),r.color||"#22c55e")}}
-
-setMode("formation");
+function setupTopBar(){if(mode==='quiz')topBoardBar.innerHTML=`<b>Quiz Board</b><div class="row"><button class="green" onclick="submitQuiz()">Submit</button><button class="gray" onclick="cancelRoute()">Cancel Current Route</button><button class="red" onclick="clearQuizDrawing()">Clear Drawings</button><button class="purple" onclick="redoQuiz()">Redo</button><button class="purple" onclick="nextQuiz()">Next</button><button class="gray" onclick="toggleSolution()">Show Play</button></div>`;else if(mode==='play')topBoardBar.innerHTML=`<b>Play Board</b><div class="row"><button class="green" onclick="savePlay(true)">Save Play</button><button class="gray" onclick="cancelRoute()">Cancel Current Route</button><button class="red" onclick="clearRoutes()">Clear Routes</button></div>`;else topBoardBar.innerHTML=`<b>${mode==='library'?'Play Library':'RouteRecall Whiteboard'}</b>`}
+function setupSidebar(){if(mode==='formation')sidebar.innerHTML=`<div class="panel"><h3>Formation Builder</h3><input id="formationName" value="${safe(currentFormation.name)}" placeholder="Formation name"><div class="row"><button onclick="tool='circle';editTool='place'">Circle</button><button onclick="tool='square';editTool='place'">Square</button><button onclick="tool='triangle';editTool='place'">Triangle</button></div><div class="row"><button class="gray" onclick="editTool='place';setupSidebar()">Move/Add</button><button class="red ${editTool==='delete'?'active':''}" onclick="editTool='delete';setupSidebar()">Delete Mode</button></div><button class="green" onclick="saveFormationAsNew()">Save as New Formation</button><button class="gray" onclick="newFormation()">Clear Board</button></div><div class="panel"><h3>Selected Player</h3><input id="pLabel" placeholder="Label: X, Z, QB"><input id="pName" placeholder="Optional name"><input id="pColor" type="color" value="#2563eb"><button onclick="updatePlayer()">Update Player</button></div>`;
+if(mode==='library')sidebar.innerHTML=`<div class="panel"><h3>Library</h3><input id="librarySearch" placeholder="Search plays, notes, tips..." value="${safe(librarySearch)}" oninput="librarySearch=this.value;setupBank()"><p class="small">Use the formation buttons above the menu, then click a play to see routes, notes, blanks, and tips.</p></div><div class="panel"><h3>📤 Share Playbook</h3><button class="green" onclick="exportPlaybook()">⬇ Export Playbook</button><input id="importFile" type="file" accept=".json,application/json" style="display:none" onchange="importPlaybookFile(event)"><button class="purple" onclick="document.getElementById('importFile').click()">⬆ Import Playbook</button><p class="small">Export downloads a .json file. Email it to teammates, then they can import it.</p></div>`;
+if(mode==='play')sidebar.innerHTML=`<div class="panel"><h3>Play Creator</h3><p class="small">Pick a formation below. Use Route Draw to draw routes, or Move Players to adjust alignment for this specific play.</p><input id="playName" placeholder="Play name" value="${safe(currentPlay?.name||'')}"><label class="small">Route Color</label><input id="routeColor" type="color" value="${routeColor}" onchange="routeColor=this.value"><div class="row"><button class="${playTool==='route'?'active':''}" onclick="playTool='route';setupSidebar()">Route Draw</button><button class="gray ${playTool==='move'?'active':''}" onclick="playTool='move';setupSidebar()">Move Players</button></div><p class="small">Player movements here save only to this play, not the base formation.</p></div><div class="panel"><h3>Fill-in Blank / Notes</h3><textarea id="noteText" placeholder="Example: On Elgin 37 Jab, the RBL motions.">${safe(currentPlay?.noteText||'')}</textarea><input id="blankAnswer" placeholder="Answer word(s), like RBL" value="${safe(currentPlay?.blankAnswer||'')}"><button onclick="saveNoteToPlay()">Save Note</button></div><div class="panel"><h3>Tip After Answering</h3><textarea id="playTip" placeholder="Example: RBL should motion across before the jab action.">${safe(currentPlay?.tip||'')}</textarea><button onclick="saveNoteToPlay()">Save Tip</button></div><div class="panel"><h3>Current</h3><p class="small">Formation: ${safe(currentFormation?.name||'None')}<br>Play: ${safe(currentPlay?.name||'New / unsaved')}</p></div>`;
+if(mode==='quiz')sidebar.innerHTML=`<div class="panel"><h3>Quiz Mode</h3><button onclick="startQuiz(false)">Random All Plays</button><button onclick="startQuiz(true)">Random Favorites</button><label class="small">Endpoint Importance</label><select onchange="endpointWeight=Number(this.value);saveData()"><option value="0.1">Low</option><option value="0.25" ${endpointWeight===0.25?'selected':''}>Medium</option><option value="0.45" ${endpointWeight===0.45?'selected':''}>High</option></select><p class="small">Draw routes, answer the blank, then press Submit.</p></div>`;if(mode==='stats')sidebar.innerHTML=`<div class="panel"><h3>Stats</h3><p class="small">Most missed plays are listed below.</p></div>`}
+function setupBank(){if(mode==='formation'){bank.innerHTML=`<h2>Saved Formations</h2><div class="bankGrid">${formations.map(f=>`<div class="card"><h3>${safe(f.name)}</h3><p class="small">${f.players.length} players</p><div class="row"><button onclick="loadFormationCopy('${f.id}')">Edit Copy</button><button class="red" onclick="deleteFormation('${f.id}')">🗑 Delete</button></div></div>`).join('')||'<p>No formations yet.</p>'}</div>`}
+if(mode==='library'){const q=librarySearch.trim().toLowerCase();let selected=plays.find(p=>p.id===librarySelectedPlayId);let filteredFormations=formations.filter(f=>libraryFormationFilter==='all'||f.id===libraryFormationFilter);let allMatching=[];filteredFormations.forEach(f=>{plays.filter(p=>p.formationId===f.id).forEach(p=>{const text=(p.name+' '+(p.noteText||'')+' '+(p.blankAnswer||'')+' '+(p.tip||'')).toLowerCase();if(!q||text.includes(q))allMatching.push(p)})});if(!selected&&allMatching[0])selected=allMatching[0],librarySelectedPlayId=selected.id,currentPlay=clone(selected),currentFormation=formationWithPlayPlayers(selected);bank.innerHTML=`<h2>Library</h2><div class="formationTabs"><button class="formationTab ${libraryFormationFilter==='all'?'active':''}" onclick="setLibraryFormation('all')">All</button>${formations.map(f=>`<button class="formationTab ${libraryFormationFilter===f.id?'active':''}" onclick="setLibraryFormation('${f.id}')">${safe(f.name)}</button>`).join('')}</div><div class="libraryShell"><div class="libraryMenu"><h3>Plays</h3>${allMatching.map(p=>`<button class="libraryItem ${librarySelectedPlayId===p.id?'selected':''}" onclick="selectLibraryPlay('${p.id}')"><b>${safe(p.name)}</b><div class="small">${safe(formations.find(f=>f.id===p.formationId)?.name||'Unknown')}</div><canvas class="libraryThumb" id="thumb_${p.id}" width="260" height="125"></canvas></button>`).join('')||'<p class="small">No plays found.</p>'}</div><div>${selected?libraryPreview(selected):'<div class="libraryPreview"><h3>Select a play</h3><p class="small">Pick a play from the left to view the full board and notes.</p></div>'}</div></div>`;setTimeout(drawLibraryThumbs,0)}
+if(mode==='play'){bank.innerHTML=`<h2>Formations and Plays</h2><div class="bankGrid">${formations.map(f=>{const formPlays=plays.filter(p=>p.formationId===f.id);return `<div class="card"><h3>${safe(f.name)}</h3><div class="row"><button onclick="startNewPlayForFormation('${f.id}')">+ New Play</button><button class="red" onclick="deleteFormation('${f.id}')">🗑 Formation</button></div><p class="small">Saved plays</p>${formPlays.map(p=>`<div class="playCard"><button class="playBtn" onclick="loadPlayForEdit('${p.id}')">${p.favorite?'⭐ ':''}${safe(p.name)}</button><button class="red smallDelete" onclick="deletePlay('${p.id}')">🗑</button></div>`).join('')||'<p class="small">No plays yet.</p>'}</div>`}).join('')||'<p>No formations yet.</p>'}</div>`}
+if(mode==='quiz'){bank.innerHTML=`<h2>Choose a Play to Quiz</h2><div class="bankGrid">${formations.map(f=>{const formPlays=plays.filter(p=>p.formationId===f.id),isOpen=openQuizGroups[f.id]!==false;return `<div class="card"><button class="groupHeader" onclick="toggleQuizGroup('${f.id}')"><span>${safe(f.name)}</span><span>${isOpen?'▲':'▼'}</span></button><p class="small">${formPlays.length} saved play(s)</p>${isOpen?`<div class="playList">${formPlays.map(p=>`<div class="quizPlayWrapper"><button class="quizPlayCard" onclick="loadQuizPlay('${p.id}')"><span>${p.favorite?'⭐ ':''}${safe(p.name)}</span><small>Attempts: ${p.attempts||0} · Misses: ${p.misses||0}</small></button><button class="red smallDelete" onclick="deletePlay('${p.id}')">🗑</button></div>`).join('')||'<p class="small">No plays for this formation yet.</p>'}</div>`:''}</div>`}).join('')||'<p>No formations yet.</p>'}</div>`}
+if(mode==='stats'){const sorted=[...plays].sort((a,b)=>(b.misses||0)-(a.misses||0));bank.innerHTML=`<h2>Most Missed Plays</h2><div class="bankGrid">${sorted.map(p=>`<div class="card"><h3>${p.favorite?'⭐ ':''}${safe(p.name)}</h3><p class="small">Attempts: ${p.attempts||0}<br>Misses: ${p.misses||0}</p><div class="row"><button onclick="toggleFavorite('${p.id}')">${p.favorite?'Unfavorite':'Favorite'}</button><button class="red" onclick="deletePlay('${p.id}')">🗑 Delete</button></div></div>`).join('')||'<p>No stats yet.</p>'}</div>`}}
+function libraryPreview(p){const f=formations.find(x=>x.id===p.formationId);const players=getPlayerListForPlay(p);return `<div class="libraryPreview"><h2>${safe(p.name)}</h2><div><span class="pill">Formation: ${safe(f?.name||'Unknown')}</span><span class="pill">Routes: ${Object.keys(p.routes||{}).length}</span><span class="pill">Attempts: ${p.attempts||0}</span><span class="pill">Misses: ${p.misses||0}</span></div><canvas id="libraryBigBoard" class="libraryBigBoard" width="760" height="420"></canvas><div class="libraryInfoGrid"><div class="infoCard"><b>Fill-in Prompt</b><br>${safe(makeBlankPrompt(p.noteText,p.blankAnswer)||'None')}</div><div class="infoCard"><b>Correct Blank</b><br>${safe(p.blankAnswer||'None')}</div><div class="infoCard"><b>Full Note</b><br>${safe(p.noteText||'None')}</div><div class="infoCard"><b>Tip</b><br>${safe(p.tip||'None')}</div></div><div class="row" style="margin-top:12px"><button onclick="setMode('play');loadPlayForEdit('${p.id}')">Edit Play</button><button class="red" onclick="deletePlay('${p.id}')">Delete</button></div></div>`}
+function setLibraryFormation(id){libraryFormationFilter=id;librarySelectedPlayId=null;currentPlay=null;currentFormation=null;setupBank();draw()}function selectLibraryPlay(id){librarySelectedPlayId=id;const p=plays.find(x=>x.id===id);if(p){currentPlay=clone(p);currentFormation=formationWithPlayPlayers(p)}setupBank();draw()}
+function drawLibraryThumbs(){plays.forEach(p=>{const c=document.getElementById('thumb_'+p.id);if(c)drawPlayOnCanvas(c,p,'')});const big=document.getElementById('libraryBigBoard');const p=plays.find(x=>x.id===librarySelectedPlayId);if(big&&p)drawPlayOnCanvas(big,p,p.name)}function drawPlayOnCanvas(c,p,title){const cc=c.getContext('2d'),players=getPlayerListForPlay(p);drawGrid(cc,c.width,c.height,title);const sx=c.width/canvas.width,sy=c.height/canvas.height;players.forEach(pl=>drawPlayerOn(cc,pl,sx,sy,null));for(const pid in (p.routes||{})){const r=p.routes[pid];drawRouteOn(cc,scaledPoints(r.points,sx,sy),r.color||'#22c55e',Math.max(2,6*Math.min(sx,sy)))} }
+function toggleQuizGroup(id){openQuizGroups[id]=openQuizGroups[id]===false?true:false;saveData();setupBank()}function makeBlankPrompt(text,answer){if(!text||!answer)return '';const escaped=answer.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return text.replace(new RegExp(escaped,'i'),'________')}function renderQuizBlank(){if(!quizPlay?.noteText||!quizPlay?.blankAnswer){quizBlankArea.innerHTML='';return}quizBlankArea.innerHTML=`<div class="blankBox"><div class="blankPrompt">${safe(makeBlankPrompt(quizPlay.noteText,quizPlay.blankAnswer))}</div><input id="blankUserAnswer" placeholder="Type the missing word(s)"></div>`}
+function saveNoteToPlay(){if(!currentPlay)return alert('Create or select a play first.');currentPlay.noteText=document.getElementById('noteText')?.value||'';currentPlay.blankAnswer=document.getElementById('blankAnswer')?.value||'';currentPlay.tip=document.getElementById('playTip')?.value||'';savePlay(false);alert('Note/tip saved.')}
+function deleteFormation(id){const f=formations.find(x=>x.id===id);if(!f)return;const count=plays.filter(p=>p.formationId===id).length;if(!confirm(`Delete formation "${f.name}"?\nThis will also delete ${count} play(s).`))return;formations=formations.filter(f=>f.id!==id);plays=plays.filter(p=>p.formationId!==id);saveData();setupUI();draw()}function deletePlay(id){const p=plays.find(x=>x.id===id);if(!p)return;if(!confirm(`Delete play "${p.name}"?`))return;plays=plays.filter(p=>p.id!==id);if(currentPlay?.id===id)currentPlay=null;if(quizPlay?.id===id){quizPlay=null;quizUserRoutes={};quizBlankArea.innerHTML='';results.innerHTML='';hideSolution()}if(librarySelectedPlayId===id)librarySelectedPlayId=null;saveData();setupUI();draw()}
+function exportPlaybook(){const name=prompt('Playbook file name:','RouteRecall_Playbook')||'RouteRecall_Playbook';const data={app:'RouteRecall',version:'1.1',exportedAt:new Date().toISOString(),formations,plays};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name.replace(/[^a-z0-9_ -]/gi,'_')+'.json';a.click();URL.revokeObjectURL(url)}function importPlaybookFile(event){const file=event.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(){try{const data=JSON.parse(reader.result);if(!data.formations||!data.plays){alert('Invalid RouteRecall playbook.');return}const replace=confirm('Press OK to REPLACE your current playbook.\n\nPress Cancel to MERGE the imported playbook with yours.');if(replace){formations=data.formations;plays=data.plays}else{formations=[...formations,...data.formations];plays=[...plays,...data.plays]}saveData();setupUI();draw();alert('Playbook Imported!')}catch{alert('Unable to import file.')}};reader.readAsText(file);event.target.value=''}
+function mouse(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*(canvas.width/r.width),y:(e.clientY-r.top)*(canvas.height/r.height)}}function drawGrid(c,w,h,title){c.clearRect(0,0,w,h);c.fillStyle='#f8fafc';c.fillRect(0,0,w,h);c.strokeStyle='#d1d5db';c.lineWidth=1.4;for(let x=80;x<w;x+=80){c.beginPath();c.moveTo(x,0);c.lineTo(x,h);c.stroke()}for(let y=70;y<h;y+=70){c.beginPath();c.moveTo(0,y);c.lineTo(w,y);c.stroke()}if(title){c.fillStyle='#111827';c.font='bold 18px Arial';c.fillText(title,18,30)}}function drawField(){drawGrid(ctx,canvas.width,canvas.height,mode==='quiz'&&quizPlay?`Quiz: ${quizPlay.name}`:'RouteRecall Whiteboard')}
+function drawPlayerOn(c,p,sx=1,sy=1,highlightId=selectedPlayer?.id){const x=p.x*sx,y=p.y*sy,r=27*Math.min(sx,sy);c.save();c.fillStyle=p.color||'#2563eb';c.strokeStyle=highlightId===p.id?'#facc15':'#111827';c.lineWidth=Math.max(1.5,4*Math.min(sx,sy));if(p.shape==='circle'){c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.fill();c.stroke()}else if(p.shape==='square'){c.fillRect(x-r,y-r,r*2,r*2);c.strokeRect(x-r,y-r,r*2,r*2)}else{c.beginPath();c.moveTo(x,y-r*1.15);c.lineTo(x-r*1.15,y+r);c.lineTo(x+r*1.15,y+r);c.closePath();c.fill();c.stroke()}c.fillStyle='white';c.font=`bold ${Math.max(8,17*Math.min(sx,sy))}px Arial`;c.textAlign='center';c.fillText(p.label,x,y+5*Math.min(sx,sy));c.restore()}function drawRouteOn(c,points,color='#22c55e',lw=6){if(!points||points.length<2)return;c.strokeStyle=color;c.lineWidth=lw;c.lineCap='round';c.lineJoin='round';c.beginPath();c.moveTo(points[0].x,points[0].y);for(const p of points)c.lineTo(p.x,p.y);c.stroke();const end=points.at(-1),prev=points[Math.max(0,points.length-8)],ang=Math.atan2(end.y-prev.y,end.x-prev.x),a=Math.max(8,22*(lw/6));c.beginPath();c.moveTo(end.x,end.y);c.lineTo(end.x-a*Math.cos(ang-.45),end.y-a*Math.sin(ang-.45));c.lineTo(end.x-a*Math.cos(ang+.45),end.y-a*Math.sin(ang+.45));c.closePath();c.fillStyle=color;c.fill()}function scaledPoints(points,sx,sy){return points.map(p=>({x:p.x*sx,y:p.y*sy}))}function draw(){drawField();if(currentFormation)currentFormation.players.forEach(p=>drawPlayerOn(ctx,p));if((mode==='play'||mode==='library')&&currentPlay){for(const pid in currentPlay.routes)drawRouteOn(ctx,currentPlay.routes[pid].points,currentPlay.routes[pid].color)}if(mode==='quiz'){for(const pid in quizUserRoutes)drawRouteOn(ctx,quizUserRoutes[pid].points,'#22c55e')}if(routePoints.length)drawRouteOn(ctx,routePoints,routeColor);if(solutionPanel.classList.contains('show'))drawSolution()}function hitPlayer(x,y){if(!currentFormation)return null;return[...currentFormation.players].reverse().find(p=>Math.hypot(p.x-x,p.y-y)<40)}
+canvas.addEventListener('pointerdown',e=>{const m=mouse(e);if(mode==='formation'){const hit=hitPlayer(m.x,m.y);if(editTool==='delete'){if(hit){currentFormation.players=currentFormation.players.filter(p=>p.id!==hit.id);selectedPlayer=null;draw()}return}if(hit){selectedPlayer=hit;dragging=true;fillPlayerInputs()}else{const p={id:uid(),shape:tool,x:m.x,y:m.y,label:'P'+(currentFormation.players.length+1),name:'',color:'#2563eb'};currentFormation.players.push(p);selectedPlayer=p;fillPlayerInputs()}}if(mode==='play'){const hit=hitPlayer(m.x,m.y);if(hit){selectedPlayer=hit;if(playTool==='move')dragging=true;else{drawing=true;routePoints=[{x:hit.x,y:hit.y},m]}}}if(mode==='quiz'){const hit=hitPlayer(m.x,m.y);if(hit){selectedPlayer=hit;drawing=true;routePoints=[{x:hit.x,y:hit.y},m]}}draw()});canvas.addEventListener('pointermove',e=>{const m=mouse(e);if(dragging&&selectedPlayer){selectedPlayer.x=m.x;selectedPlayer.y=m.y;draw()}if(drawing){routePoints.push(m);draw()}});canvas.addEventListener('pointerup',()=>{if(dragging&&mode==='play'&&currentPlay){currentPlay.players=clone(currentFormation.players);savePlay(false)}if(dragging)dragging=false;if(drawing&&mode==='play'&&selectedPlayer){currentPlay.routes[selectedPlayer.id]={playerLabel:selectedPlayer.label,points:routePoints,color:routeColor};routePoints=[];savePlay(false)}if(drawing&&mode==='quiz'&&selectedPlayer){quizUserRoutes[selectedPlayer.id]={playerLabel:selectedPlayer.label,points:routePoints,color:'#22c55e'};routePoints=[]}drawing=false;setupBank();draw()});
+function cancelRoute(){drawing=false;routePoints=[];draw()}function clearQuizDrawing(){quizUserRoutes={};routePoints=[];results.innerHTML='';hideSolution();draw()}function redoQuiz(){if(!quizPlay)return alert('Choose a play first.');quizUserRoutes={};routePoints=[];results.innerHTML='';hideSolution();renderQuizBlank();draw()}function nextQuiz(){startQuiz(false)}function fillPlayerInputs(){if(!selectedPlayer)return;if(document.getElementById('pLabel'))document.getElementById('pLabel').value=selectedPlayer.label;if(document.getElementById('pName'))document.getElementById('pName').value=selectedPlayer.name;if(document.getElementById('pColor'))document.getElementById('pColor').value=selectedPlayer.color}function updatePlayer(){if(!selectedPlayer)return;selectedPlayer.label=document.getElementById('pLabel').value||selectedPlayer.label;selectedPlayer.name=document.getElementById('pName').value||'';selectedPlayer.color=document.getElementById('pColor').value;draw()}function newFormation(){currentFormation={id:uid(),name:'New Formation',players:[]};selectedPlayer=null;setupUI();draw()}function saveFormationAsNew(){currentFormation.name=document.getElementById('formationName').value||'Untitled Formation';const f=clone(currentFormation);f.id=uid();formations.push(f);saveData();setupBank();alert('Formation saved.')}function loadFormationCopy(id){currentFormation=clone(formations.find(f=>f.id===id));currentFormation.id=uid();currentFormation.name+=' Copy';selectedPlayer=null;setupUI();draw()}
+function startNewPlayForFormation(id){currentFormation=clone(formations.find(f=>f.id===id));currentPlay={id:uid(),name:'',formationId:id,players:clone(currentFormation.players),routes:{},attempts:0,misses:0,favorite:false,noteText:'',blankAnswer:'',tip:''};selectedPlayer=null;setupUI();draw()}function savePlay(showAlert){if(!currentFormation||!currentPlay)return alert('Select a formation first.');const nameInput=document.getElementById('playName');if(nameInput)currentPlay.name=nameInput.value||currentPlay.name||'Untitled Play';if(currentFormation?.players)currentPlay.players=clone(currentFormation.players);['noteText','blankAnswer','playTip'].forEach(id=>{const el=document.getElementById(id);if(el){if(id==='playTip')currentPlay.tip=el.value;else currentPlay[id]=el.value}});const i=plays.findIndex(p=>p.id===currentPlay.id);if(i>=0)plays[i]=clone(currentPlay);else plays.push(clone(currentPlay));saveData();setupBank();if(showAlert)alert('Play saved.')}function loadPlayForEdit(id){currentPlay=clone(plays.find(p=>p.id===id));currentFormation=formationWithPlayPlayers(currentPlay);selectedPlayer=null;setupUI();draw()}function clearRoutes(){if(!currentPlay)return;currentPlay.routes={};savePlay(false);draw()}function toggleFavorite(id){const p=plays.find(p=>p.id===id);p.favorite=!p.favorite;saveData();setupBank()}
+function startQuiz(favsOnly){let pool=plays.filter(p=>Object.keys(p.routes).length);if(favsOnly)pool=pool.filter(p=>p.favorite);if(!pool.length)return alert('No plays available.');let weighted=[];for(const p of pool){const w=1+(p.misses||0)*2;for(let i=0;i<w;i++)weighted.push(p)}loadQuizPlay(weighted[Math.floor(Math.random()*weighted.length)].id)}function loadQuizPlay(id){quizPlay=clone(plays.find(p=>p.id===id));currentPlay=quizPlay;currentFormation=formationWithPlayPlayers(quizPlay);quizUserRoutes={};routePoints=[];results.innerHTML='';lastQuizHadWrong=false;hideSolution();setupUI();renderQuizBlank();draw()}function resample(points,n=80){if(!points||points.length<2)return[];let d=[0],total=0;for(let i=1;i<points.length;i++){total+=Math.hypot(points[i].x-points[i-1].x,points[i].y-points[i-1].y);d.push(total)}let out=[];for(let k=0;k<n;k++){let target=(k/(n-1))*total,i=d.findIndex(v=>v>=target);if(i<=0){out.push(points[0]);continue}let t=(target-d[i-1])/(d[i]-d[i-1]||1);out.push({x:points[i-1].x+(points[i].x-points[i-1].x)*t,y:points[i-1].y+(points[i].y-points[i-1].y)*t})}return out}function scoreRoute(expected,user){if(!expected||!user)return 0;const a=resample(expected),b=resample(user);if(!a.length||!b.length)return 0;let err=0;for(let i=0;i<a.length;i++)err+=Math.hypot(a[i].x-b[i].x,a[i].y-b[i].y);err/=a.length;const endErr=Math.hypot(a.at(-1).x-b.at(-1).x,a.at(-1).y-b.at(-1).y);err=err*(1-endpointWeight)+endErr*endpointWeight;return Math.max(0,Math.round(100-err/3))}function normalizeAnswer(s){return String(s||'').trim().toLowerCase().replace(/[^\w\s]/g,'').replace(/\s+/g,' ')}function submitQuiz(){if(!quizPlay)return alert('Choose a play first.');let correctCount=0,totalCount=0,rows='';lastQuizHadWrong=false;for(const pid in quizPlay.routes){totalCount++;const expected=quizPlay.routes[pid],user=quizUserRoutes[pid],percent=scoreRoute(expected.points,user?.points),correct=percent>=80;if(correct)correctCount++;else lastQuizHadWrong=true;rows+=`<div class="resultLine"><span class="dot ${correct?'goodDot':'badDot'}"></span><b>${safe(expected.playerLabel)}</b>: ${correct?'Correct':'Incorrect'} — ${percent}%</div>`}if(quizPlay.blankAnswer){totalCount++;const userBlank=document.getElementById('blankUserAnswer')?.value||'',blankCorrect=normalizeAnswer(userBlank)===normalizeAnswer(quizPlay.blankAnswer);if(blankCorrect)correctCount++;else lastQuizHadWrong=true;rows+=`<div class="resultLine"><span class="dot ${blankCorrect?'goodDot':'badDot'}"></span><b>Blank</b>: ${blankCorrect?'Correct':'Incorrect'} — Answer: ${safe(quizPlay.blankAnswer)}</div>`}const pct=Math.round((correctCount/Math.max(1,totalCount))*100);results.innerHTML=`<div class="resultsOverlay"><h3>Results</h3>${rows}<p style="color:${lastQuizHadWrong?'#ef4444':'#22c55e'};font-weight:800">${correctCount} / ${totalCount} correct</p>${quizPlay.tip?`<div class="tip"><b>Tip:</b> ${safe(quizPlay.tip)}</div>`:''}<div class="progressTrack"><div class="progressFill" style="width:${pct}%"></div></div></div>`;const playRef=plays.find(p=>p.id===quizPlay.id);if(playRef){playRef.attempts=(playRef.attempts||0)+1;if(lastQuizHadWrong)playRef.misses=(playRef.misses||0)+1;saveData()}if(lastQuizHadWrong)showSolution();setupBank();draw()}function showSolution(){if(!quizPlay||!currentFormation)return;solutionPanel.classList.add('show');solutionTitle.textContent=`Correct Play (${quizPlay.name})`;drawSolution();solutionAnswers.innerHTML=`<b>Correct Answers</b>${quizPlay.noteText?`<div style="margin-top:8px">${safe(quizPlay.noteText)}</div>`:''}${quizPlay.blankAnswer?`<div style="margin-top:8px"><b>Blank:</b> ${safe(quizPlay.blankAnswer)}</div>`:''}${quizPlay.tip?`<div class="tip"><b>Tip:</b> ${safe(quizPlay.tip)}</div>`:''}`}function hideSolution(){solutionPanel.classList.remove('show');solutionAnswers.innerHTML=''}function toggleSolution(){if(!quizPlay)return alert('Choose a play first.');solutionPanel.classList.contains('show')?hideSolution():showSolution();draw()}function drawSolution(){if(!quizPlay||!currentFormation)return;const sx=solutionCanvas.width/canvas.width,sy=solutionCanvas.height/canvas.height;drawGrid(sctx,solutionCanvas.width,solutionCanvas.height,`Correct: ${quizPlay.name}`);currentFormation.players.forEach(p=>drawPlayerOn(sctx,p,sx,sy,null));for(const pid in quizPlay.routes){const r=quizPlay.routes[pid];drawRouteOn(sctx,scaledPoints(r.points,sx,sy),r.color||'#22c55e',Math.max(2,6*Math.min(sx,sy)))}}
+setMode('formation');
 </script>
 </body>
 </html>
