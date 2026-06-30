@@ -4,10 +4,31 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RouteRecall</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#11141c;color:white;overflow-x:hidden}
-header{height:64px;background:#202534;display:flex;align-items:center;justify-content:space-between;padding:0 18px;gap:12px;position:sticky;top:0;z-index:10}
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#11141c;
+  color:white;
+  overflow-x:hidden;
+}
+
+header{
+  height:64px;
+  background:#202534;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 18px;
+  gap:12px;
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+
 h1{font-size:23px;margin:0;white-space:nowrap}
 button,input,select,textarea{border:0;border-radius:14px;padding:10px 14px;font-weight:700}
 button{cursor:pointer;background:#587cff;color:white}button:hover{filter:brightness(1.08)}
@@ -27,9 +48,48 @@ canvas{background:#f8fafc;border-radius:18px;width:100%;height:auto;touch-action
 @media(max-width:850px){header{height:auto;min-height:64px;align-items:flex-start;padding-top:12px;padding-bottom:12px}main{grid-template-columns:1fr}aside{order:2}.resultsOverlay{position:static;width:auto;margin-top:10px}.libraryGrid4{grid-template-columns:1fr}}
 </style>
 </head>
+
 <body>
-<header><h1>🏈 RouteRecall</h1><div class="row"><button onclick="setMode('formation')">Formation Builder</button><button onclick="setMode('library')">Library</button><button onclick="setMode('play')">Play Creator</button><button onclick="setMode('quiz')">Quiz Mode</button><button onclick="setMode('stats')">Stats</button></div></header>
-<main><aside id="sidebar"></aside><section id="stageArea"><div id="topBoardBar"></div><div class="boardLayout"><div class="boardWrap"><canvas id="field" width="1200" height="650"></canvas><div id="results"></div></div><div id="solutionPanel" class="solutionPanel"><div class="solutionHeader"><b id="solutionTitle">Correct Play</b><button class="gray" onclick="toggleSolution()">Hide Solution</button></div><canvas id="solutionCanvas" width="720" height="520"></canvas><div id="solutionAnswers" class="answerBox"></div></div></div><div id="quizBlankArea"></div><div id="bank" class="bank"></div><div class="footerNote">Correct = 80% or higher · Incorrect = below 80%</div></section></main>
+
+<header>
+  <h1>🏈 RouteRecall</h1>
+  <div class="row">
+    <button onclick="setMode('formation')">Formation Builder</button>
+    <button onclick="setMode('library')">Library</button>
+    <button onclick="setMode('play')">Play Creator</button>
+    <button onclick="setMode('quiz')">Quiz Mode</button>
+    <button onclick="setMode('stats')">Stats</button>
+  </div>
+</header>
+
+<main>
+<aside id="sidebar"></aside>
+
+<section id="stageArea">
+  <div id="topBoardBar"></div>
+
+  <div class="boardLayout">
+    <div class="boardWrap">
+      <canvas id="field" width="1200" height="650"></canvas>
+      <div id="results"></div>
+    </div>
+
+    <div id="solutionPanel" class="solutionPanel">
+      <div class="solutionHeader">
+        <b id="solutionTitle">Correct Play</b>
+        <button class="gray" onclick="toggleSolution()">Hide Solution</button>
+      </div>
+      <canvas id="solutionCanvas" width="720" height="520"></canvas>
+      <div id="solutionAnswers" class="answerBox"></div>
+    </div>
+  </div>
+
+  <div id="quizBlankArea"></div>
+  <div id="bank" class="bank"></div>
+  <div class="footerNote">Correct = 80% or higher · Incorrect = below 80%</div>
+</section>
+</main>
+
 <script>
 const canvas=document.getElementById('field'),ctx=canvas.getContext('2d');const solutionCanvas=document.getElementById('solutionCanvas'),sctx=solutionCanvas.getContext('2d');const sidebar=document.getElementById('sidebar'),bank=document.getElementById('bank'),topBoardBar=document.getElementById('topBoardBar'),results=document.getElementById('results');const solutionPanel=document.getElementById('solutionPanel'),solutionTitle=document.getElementById('solutionTitle'),solutionAnswers=document.getElementById('solutionAnswers'),quizBlankArea=document.getElementById('quizBlankArea');
 let formations=JSON.parse(localStorage.getItem('rr_formations')||'[]');let plays=JSON.parse(localStorage.getItem('rr_plays')||'[]');let openQuizGroups=JSON.parse(localStorage.getItem('rr_openQuizGroups')||'{}');
@@ -41,14 +101,14 @@ function setupUI(){setupTopBar();setupSidebar();setupBank()}
 function setupTopBar(){if(mode==='quiz')topBoardBar.innerHTML=`<b>Quiz Board</b><div class="row"><button class="green" onclick="submitQuiz()">Submit</button><button class="gray" onclick="cancelRoute()">Cancel Current Route</button><button class="red" onclick="clearQuizDrawing()">Clear Drawings</button><button class="purple" onclick="redoQuiz()">Redo</button><button class="purple" onclick="nextQuiz()">Next</button><button class="gray" onclick="toggleSolution()">Show Play</button></div>`;else if(mode==='play')topBoardBar.innerHTML=`<b>Play Board</b><div class="row"><button class="green" onclick="savePlay(true)">Save Play</button><button class="gray" onclick="cancelRoute()">Cancel Current Route</button><button class="red" onclick="clearRoutes()">Clear Routes</button></div>`;else topBoardBar.innerHTML=`<b>${mode==='library'?'Play Library':'RouteRecall Whiteboard'}</b>`}
 function setupSidebar(){if(mode==='formation')sidebar.innerHTML=`<div class="panel"><h3>Formation Builder</h3><input id="formationName" value="${safe(currentFormation.name)}" placeholder="Formation name"><div class="row"><button onclick="tool='circle';editTool='place'">Circle</button><button onclick="tool='square';editTool='place'">Square</button><button onclick="tool='triangle';editTool='place'">Triangle</button></div><div class="row"><button class="gray" onclick="editTool='place';setupSidebar()">Move/Add</button><button class="red ${editTool==='delete'?'active':''}" onclick="editTool='delete';setupSidebar()">Delete Mode</button></div><button class="green" onclick="saveFormationAsNew()">Save as New Formation</button><button class="gray" onclick="newFormation()">Clear Board</button></div><div class="panel"><h3>Selected Player</h3><input id="pLabel" placeholder="Label: X, Z, QB"><input id="pName" placeholder="Optional name"><input id="pColor" type="color" value="#2563eb"><button onclick="updatePlayer()">Update Player</button></div>`;
 if(mode==='library')sidebar.innerHTML=`<div class="panel"><h3>Library</h3><input id="librarySearch" placeholder="Search plays, notes, tips..." value="${safe(librarySearch)}" oninput="librarySearch=this.value;setupBank()"><p class="small">Use the formation buttons above the menu, then click a play to see routes, notes, blanks, and tips.</p></div><div class="panel"><h3>📤 Share Playbook</h3><button class="green" onclick="exportPlaybook()">⬇ Export Playbook</button><input id="importFile" type="file" accept=".json,application/json" style="display:none" onchange="importPlaybookFile(event)"><button class="purple" onclick="document.getElementById('importFile').click()">⬆ Import Playbook</button><p class="small">Export downloads a .json file. Email it to teammates, then they can import it.</p></div>`;
-if(mode==='play')sidebar.innerHTML=`<div class="panel"><h3>Play Creator</h3><p class="small">Pick a formation below. Use Route Draw to draw routes, or Move Players to adjust alignment for this specific play.</p><input id="playName" placeholder="Play name" value="${safe(currentPlay?.name||'')}"><label class="small">Route Color</label><input id="routeColor" type="color" value="${routeColor}" onchange="routeColor=this.value"><div class="row"><button class="${playTool==='route'?'active':''}" onclick="playTool='route';setupSidebar()">Route Draw</button><button class="gray ${playTool==='move'?'active':''}" onclick="playTool='move';setupSidebar()">Move Players</button><button class="gray ${playTool==='addCircle'?'active':''}" onclick="playTool='addCircle';setupSidebar()">+ Circle</button><button class="gray ${playTool==='addSquare'?'active':''}" onclick="playTool='addSquare';setupSidebar()">+ Square</button><button class="gray ${playTool==='addTriangle'?'active':''}" onclick="playTool='addTriangle';setupSidebar()">+ Triangle</button><button class="red ${playTool==='delete'?'active':''}" onclick="playTool='delete';setupSidebar()">Delete Player</button></div><p class="small">These player changes only affect this play, not the base formation.</p></div><div class="panel"><h3>Selected Player</h3><input id="playPLabel" placeholder="Label: RBL, RBR, QB"><input id="playPName" placeholder="Optional name"><input id="playPColor" type="color" value="#2563eb"><button onclick="updatePlayPlayer()">Update Player</button></div><div class="panel"><h3>Fill-in Blank / Notes</h3><textarea id="noteText" placeholder="Example: On Elgin 37 Jab, the RBL motions.">${safe(currentPlay?.noteText||'')}</textarea><input id="blankAnswer" placeholder="Answer word(s), like RBL" value="${safe(currentPlay?.blankAnswer||'')}"><button onclick="saveNoteToPlay()">Save Note</button></div><div class="panel"><h3>Tip After Answering</h3><textarea id="playTip" placeholder="Example: RBL should motion across before the jab action.">${safe(currentPlay?.tip||'')}</textarea><button onclick="saveNoteToPlay()">Save Tip</button></div><div class="panel"><h3>Current</h3><p class="small">Formation: ${safe(currentFormation?.name||'None')}<br>Play: ${safe(currentPlay?.name||'New / unsaved')}</p></div>`;
+if(mode==='play')sidebar.innerHTML=`<div class="panel"><h3>Play Creator</h3><p class="small">Pick a formation below. Use Route Draw to draw routes, or edit players for this specific play.</p><input id="playName" placeholder="Play name" value="${safe(currentPlay?.name||'')}"><label class="small">Route Color</label><input id="routeColor" type="color" value="${routeColor}" onchange="routeColor=this.value"><div class="row"><button class="${playTool==='route'?'active':''}" onclick="playTool='route';setupSidebar()">Route Draw</button><button class="gray ${playTool==='move'?'active':''}" onclick="playTool='move';setupSidebar()">Move Players</button><button class="gray ${playTool==='addCircle'?'active':''}" onclick="playTool='addCircle';setupSidebar()">+ Circle</button><button class="gray ${playTool==='addSquare'?'active':''}" onclick="playTool='addSquare';setupSidebar()">+ Square</button><button class="gray ${playTool==='addTriangle'?'active':''}" onclick="playTool='addTriangle';setupSidebar()">+ Triangle</button><button class="red ${playTool==='delete'?'active':''}" onclick="playTool='delete';setupSidebar()">Delete Player</button></div><p class="small">These player edits only affect this play, not the base formation.</p></div><div class="panel"><h3>Selected Player</h3><input id="playPLabel" placeholder="Label: RBL, RBR, QB"><input id="playPName" placeholder="Optional name"><input id="playPColor" type="color" value="#2563eb"><button onclick="updatePlayPlayer()">Update Player</button></div><div class="panel"><h3>Fill-in Blank / Notes</h3><textarea id="noteText" placeholder="Example: On Elgin 37 Jab, the RBL motions.">${safe(currentPlay?.noteText||'')}</textarea><input id="blankAnswer" placeholder="Answer word(s), like RBL" value="${safe(currentPlay?.blankAnswer||'')}"><button onclick="saveNoteToPlay()">Save Note</button></div><div class="panel"><h3>Tip After Answering</h3><textarea id="playTip" placeholder="Example: RBL should motion across before the jab action.">${safe(currentPlay?.tip||'')}</textarea><button onclick="saveNoteToPlay()">Save Tip</button></div><div class="panel"><h3>Current</h3><p class="small">Formation: ${safe(currentFormation?.name||'None')}<br>Play: ${safe(currentPlay?.name||'New / unsaved')}<br>Tool: ${safe(playTool)}</p></div>`;
 if(mode==='quiz')sidebar.innerHTML=`<div class="panel"><h3>Quiz Mode</h3><button onclick="startQuiz(false)">Random All Plays</button><button onclick="startQuiz(true)">Random Favorites</button><label class="small">Endpoint Importance</label><select onchange="endpointWeight=Number(this.value);saveData()"><option value="0.1">Low</option><option value="0.25" ${endpointWeight===0.25?'selected':''}>Medium</option><option value="0.45" ${endpointWeight===0.45?'selected':''}>High</option></select><p class="small">Draw routes, answer the blank, then press Submit.</p></div>`;if(mode==='stats')sidebar.innerHTML=`<div class="panel"><h3>Stats</h3><p class="small">Most missed plays are listed below.</p></div>`}
 function setupBank(){if(mode==='formation'){bank.innerHTML=`<h2>Saved Formations</h2><div class="bankGrid">${formations.map(f=>`<div class="card"><h3>${safe(f.name)}</h3><p class="small">${f.players.length} players</p><div class="row"><button onclick="loadFormationCopy('${f.id}')">Edit Copy</button><button class="red" onclick="deleteFormation('${f.id}')">🗑 Delete</button></div></div>`).join('')||'<p>No formations yet.</p>'}</div>`}
 if(mode==='library'){const q=librarySearch.trim().toLowerCase();let selected=plays.find(p=>p.id===librarySelectedPlayId);let filteredFormations=formations.filter(f=>libraryFormationFilter==='all'||f.id===libraryFormationFilter);let allMatching=[];filteredFormations.forEach(f=>{plays.filter(p=>p.formationId===f.id).forEach(p=>{const text=(p.name+' '+(p.noteText||'')+' '+(p.blankAnswer||'')+' '+(p.tip||'')).toLowerCase();if(!q||text.includes(q))allMatching.push(p)})});if(!selected&&allMatching[0])selected=allMatching[0],librarySelectedPlayId=selected.id,currentPlay=clone(selected),currentFormation=formationWithPlayPlayers(selected);bank.innerHTML=`<h2>Library</h2><div class="formationTabs"><button class="formationTab ${libraryFormationFilter==='all'?'active':''}" onclick="setLibraryFormation('all')">All</button>${formations.map(f=>`<button class="formationTab ${libraryFormationFilter===f.id?'active':''}" onclick="setLibraryFormation('${f.id}')">${safe(f.name)}</button>`).join('')}</div>${selected?libraryPreview(selected):''}<div class="libraryShell"><h3>Plays</h3><div class="libraryGrid4">${allMatching.map(p=>`<button class="libraryItem ${librarySelectedPlayId===p.id?'selected':''}" onclick="selectLibraryPlay('${p.id}')"><b>${safe(p.name)}</b><div class="small">${safe(formations.find(f=>f.id===p.formationId)?.name||'Unknown')}</div><canvas class="libraryThumb" id="thumb_${p.id}" width="260" height="140"></canvas></button>`).join('')||'<p class="small">No plays found.</p>'}</div></div>`;setTimeout(drawLibraryThumbs,0)}
 if(mode==='play'){bank.innerHTML=`<h2>Formations and Plays</h2><div class="bankGrid">${formations.map(f=>{const formPlays=plays.filter(p=>p.formationId===f.id);return `<div class="card"><h3>${safe(f.name)}</h3><div class="row"><button onclick="startNewPlayForFormation('${f.id}')">+ New Play</button><button class="red" onclick="deleteFormation('${f.id}')">🗑 Formation</button></div><p class="small">Saved plays</p>${formPlays.map(p=>`<div class="playCard"><button class="playBtn" onclick="loadPlayForEdit('${p.id}')">${p.favorite?'⭐ ':''}${safe(p.name)}</button><button class="red smallDelete" onclick="deletePlay('${p.id}')">🗑</button></div>`).join('')||'<p class="small">No plays yet.</p>'}</div>`}).join('')||'<p>No formations yet.</p>'}</div>`}
 if(mode==='quiz'){bank.innerHTML=`<h2>Choose a Play to Quiz</h2><div class="bankGrid">${formations.map(f=>{const formPlays=plays.filter(p=>p.formationId===f.id),isOpen=openQuizGroups[f.id]!==false;return `<div class="card"><button class="groupHeader" onclick="toggleQuizGroup('${f.id}')"><span>${safe(f.name)}</span><span>${isOpen?'▲':'▼'}</span></button><p class="small">${formPlays.length} saved play(s)</p>${isOpen?`<div class="playList">${formPlays.map(p=>`<div class="quizPlayWrapper"><button class="quizPlayCard" onclick="loadQuizPlay('${p.id}')"><span>${p.favorite?'⭐ ':''}${safe(p.name)}</span><small>Attempts: ${p.attempts||0} · Misses: ${p.misses||0}</small></button><button class="red smallDelete" onclick="deletePlay('${p.id}')">🗑</button></div>`).join('')||'<p class="small">No plays for this formation yet.</p>'}</div>`:''}</div>`}).join('')||'<p>No formations yet.</p>'}</div>`}
 if(mode==='stats'){const sorted=[...plays].sort((a,b)=>(b.misses||0)-(a.misses||0));bank.innerHTML=`<h2>Most Missed Plays</h2><div class="bankGrid">${sorted.map(p=>`<div class="card"><h3>${p.favorite?'⭐ ':''}${safe(p.name)}</h3><p class="small">Attempts: ${p.attempts||0}<br>Misses: ${p.misses||0}</p><div class="row"><button onclick="toggleFavorite('${p.id}')">${p.favorite?'Unfavorite':'Favorite'}</button><button class="red" onclick="deletePlay('${p.id}')">🗑 Delete</button></div></div>`).join('')||'<p>No stats yet.</p>'}</div>`}}
-function libraryPreview(p){const f=formations.find(x=>x.id===p.formationId);const players=getPlayerListForPlay(p);return `<div class="libraryPreview"><h2>${safe(p.name)}</h2><div><span class="pill">Formation: ${safe(f?.name||'Unknown')}</span><span class="pill">Routes: ${Object.keys(p.routes||{}).length}</span><span class="pill">Attempts: ${p.attempts||0}</span><span class="pill">Misses: ${p.misses||0}</span></div><canvas id="libraryBigBoard" class="libraryBigBoard" width="760" height="420"></canvas><div class="libraryInfoGrid"><div class="infoCard"><b>Fill-in Prompt</b><br>${safe(makeBlankPrompt(p.noteText,p.blankAnswer)||'None')}</div><div class="infoCard"><b>Correct Blank</b><br>${safe(p.blankAnswer||'None')}</div><div class="infoCard"><b>Full Note</b><br>${safe(p.noteText||'None')}</div><div class="infoCard"><b>Tip</b><br>${safe(p.tip||'None')}</div></div><div class="row" style="margin-top:12px"><button onclick="setMode('play');loadPlayForEdit('${p.id}')">Edit Play</button><button class="red" onclick="deletePlay('${p.id}')">Delete</button></div></div>`}
+function libraryPreview(p){const f=formations.find(x=>x.id===p.formationId);const players=getPlayerListForPlay(p);return `<div class="libraryPreview"><h2>${safe(p.name)}</h2><div><span class="pill">Formation: ${safe(f?.name||'Unknown')}</span><span class="pill">Routes: ${Object.keys(p.routes||{}).length}</span><span class="pill">Attempts: ${p.attempts||0}</span><span class="pill">Misses: ${p.misses||0}</span></div><canvas id="libraryBigBoard" class="libraryBigBoard" width="900" height="500"></canvas><div class="libraryInfoGrid"><div class="infoCard"><b>Fill-in Prompt</b><br>${safe(makeBlankPrompt(p.noteText,p.blankAnswer)||'None')}</div><div class="infoCard"><b>Correct Blank</b><br>${safe(p.blankAnswer||'None')}</div><div class="infoCard"><b>Full Note</b><br>${safe(p.noteText||'None')}</div><div class="infoCard"><b>Tip</b><br>${safe(p.tip||'None')}</div></div><div class="row" style="margin-top:12px"><button onclick="setMode('play');loadPlayForEdit('${p.id}')">Edit Play</button><button class="red" onclick="deletePlay('${p.id}')">Delete</button></div></div>`}
 function setLibraryFormation(id){libraryFormationFilter=id;librarySelectedPlayId=null;currentPlay=null;currentFormation=null;setupBank();draw()}function selectLibraryPlay(id){librarySelectedPlayId=id;const p=plays.find(x=>x.id===id);if(p){currentPlay=clone(p);currentFormation=formationWithPlayPlayers(p)}setupBank();draw()}
 function drawLibraryThumbs(){plays.forEach(p=>{const c=document.getElementById('thumb_'+p.id);if(c)drawPlayOnCanvas(c,p,'')});const big=document.getElementById('libraryBigBoard');const p=plays.find(x=>x.id===librarySelectedPlayId);if(big&&p)drawPlayOnCanvas(big,p,p.name)}function drawPlayOnCanvas(c,p,title){const cc=c.getContext('2d'),players=getPlayerListForPlay(p);drawGrid(cc,c.width,c.height,title);const sx=c.width/canvas.width,sy=c.height/canvas.height;players.forEach(pl=>drawPlayerOn(cc,pl,sx,sy,null));for(const pid in (p.routes||{})){const r=p.routes[pid];drawRouteOn(cc,scaledPoints(r.points,sx,sy),r.color||'#22c55e',Math.max(2,6*Math.min(sx,sy)))} }
 function toggleQuizGroup(id){openQuizGroups[id]=openQuizGroups[id]===false?true:false;saveData();setupBank()}function makeBlankPrompt(text,answer){if(!text||!answer)return '';const escaped=answer.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return text.replace(new RegExp(escaped,'i'),'________')}function renderQuizBlank(){if(!quizPlay?.noteText||!quizPlay?.blankAnswer){quizBlankArea.innerHTML='';return}quizBlankArea.innerHTML=`<div class="blankBox"><div class="blankPrompt">${safe(makeBlankPrompt(quizPlay.noteText,quizPlay.blankAnswer))}</div><input id="blankUserAnswer" placeholder="Type the missing word(s)"></div>`}
@@ -64,4 +124,4 @@ function startQuiz(favsOnly){let pool=plays.filter(p=>Object.keys(p.routes).leng
 setMode('formation');
 </script>
 </body>
-</html> 
+</html>
