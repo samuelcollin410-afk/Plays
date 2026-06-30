@@ -1,0 +1,79 @@
+name: Apply RouteRecall library and player editing update
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-routerecall_update.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-index:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Patch index.html
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('index.html')
+          s = path.read_text()
+
+          if '.libraryGrid4{' in s and "playTool==='addCircle'" in s and 'updatePlayPlayer()' in s:
+              print('RouteRecall update is already applied.')
+              raise SystemExit(0)
+
+          old_css = ".libraryShell{display:grid;grid-template-columns:310px 1fr;gap:16px}.libraryMenu{background:#171d2b;border-radius:18px;padding:12px;max-height:620px;overflow:auto}.formationTabs{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}.formationTab{background:#2d3345;border:1px solid rgba(255,255,255,.08)}.formationTab.active{background:#587cff}.libraryItem{display:block;width:100%;text-align:left;background:#252c3d;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:10px;margin-bottom:10px}.libraryItem.selected{outline:3px solid #587cff}.libraryThumb{width:100%;height:125px;border-radius:12px;background:#f8fafc;margin-top:8px}.libraryPreview{min-height:620px}.libraryBigBoard{width:100%;max-width:760px;margin-top:10px}.libraryInfoGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-top:12px}.infoCard{background:#293044;border-radius:14px;padding:12px;color:#cbd5e1}.pill{display:inline-block;background:#374151;border-radius:999px;padding:5px 9px;margin:3px;color:#e5e7eb;font-size:12px}"
+          new_css = ".libraryShell{display:block}.formationTabs{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}.formationTab{background:#2d3345;border:1px solid rgba(255,255,255,.08)}.formationTab.active{background:#587cff}.libraryGrid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:14px}.libraryItem{width:100%;text-align:left;background:#252c3d;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:12px;min-height:230px}.libraryItem.selected{outline:3px solid #587cff}.libraryThumb{width:100%;height:140px;border-radius:12px;background:#f8fafc;margin-top:10px}.libraryPreview{margin-bottom:18px}.libraryBigBoard{width:100%;max-width:900px;margin-top:10px}.libraryInfoGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-top:12px}.infoCard{background:#293044;border-radius:14px;padding:12px;color:#cbd5e1}.pill{display:inline-block;background:#374151;border-radius:999px;padding:5px 9px;margin:3px;color:#e5e7eb;font-size:12px}"
+          if old_css not in s:
+              raise SystemExit('Could not find existing Library CSS block.')
+          s = s.replace(old_css, new_css)
+          s = s.replace("@media(max-width:1200px){.boardLayout,.libraryShell{grid-template-columns:1fr}.solutionPanel{max-width:100%}}", "@media(max-width:1400px){.libraryGrid4{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:1100px){.boardLayout{grid-template-columns:1fr}.solutionPanel{max-width:100%}.libraryGrid4{grid-template-columns:repeat(2,minmax(0,1fr))}}")
+          s = s.replace("@media(max-width:850px){header{height:auto;min-height:64px;align-items:flex-start;padding-top:12px;padding-bottom:12px}main{grid-template-columns:1fr}aside{order:2}.resultsOverlay{position:static;width:auto;margin-top:10px}}", "@media(max-width:850px){header{height:auto;min-height:64px;align-items:flex-start;padding-top:12px;padding-bottom:12px}main{grid-template-columns:1fr}aside{order:2}.resultsOverlay{position:static;width:auto;margin-top:10px}.libraryGrid4{grid-template-columns:1fr}}")
+
+          old_tools = "<div class=\"row\"><button class=\"${playTool==='route'?'active':''}\" onclick=\"playTool='route';setupSidebar()\">Route Draw</button><button class=\"gray ${playTool==='move'?'active':''}\" onclick=\"playTool='move';setupSidebar()\">Move Players</button></div><p class=\"small\">Player movements here save only to this play, not the base formation.</p></div><div class=\"panel\"><h3>Fill-in Blank / Notes</h3>"
+          new_tools = "<div class=\"row\"><button class=\"${playTool==='route'?'active':''}\" onclick=\"playTool='route';setupSidebar()\">Route Draw</button><button class=\"gray ${playTool==='move'?'active':''}\" onclick=\"playTool='move';setupSidebar()\">Move Players</button><button class=\"gray ${playTool==='addCircle'?'active':''}\" onclick=\"playTool='addCircle';setupSidebar()\">+ Circle</button><button class=\"gray ${playTool==='addSquare'?'active':''}\" onclick=\"playTool='addSquare';setupSidebar()\">+ Square</button><button class=\"gray ${playTool==='addTriangle'?'active':''}\" onclick=\"playTool='addTriangle';setupSidebar()\">+ Triangle</button><button class=\"red ${playTool==='delete'?'active':''}\" onclick=\"playTool='delete';setupSidebar()\">Delete Player</button></div><p class=\"small\">These player changes only affect this play, not the base formation.</p></div><div class=\"panel\"><h3>Selected Player</h3><input id=\"playPLabel\" placeholder=\"Label: RBL, RBR, QB\"><input id=\"playPName\" placeholder=\"Optional name\"><input id=\"playPColor\" type=\"color\" value=\"#2563eb\"><button onclick=\"updatePlayPlayer()\">Update Player</button></div><div class=\"panel\"><h3>Fill-in Blank / Notes</h3>"
+          if old_tools not in s:
+              raise SystemExit('Could not find Play Creator tool block.')
+          s = s.replace(old_tools, new_tools)
+
+          old_library = "<div class=\"libraryShell\"><div class=\"libraryMenu\"><h3>Plays</h3>${allMatching.map(p=>`<button class=\"libraryItem ${librarySelectedPlayId===p.id?'selected':''}\" onclick=\"selectLibraryPlay('${p.id}')\"><b>${safe(p.name)}</b><div class=\"small\">${safe(formations.find(f=>f.id===p.formationId)?.name||'Unknown')}</div><canvas class=\"libraryThumb\" id=\"thumb_${p.id}\" width=\"260\" height=\"125\"></canvas></button>`).join('')||'<p class=\"small\">No plays found.</p>'}</div><div>${selected?libraryPreview(selected):'<div class=\"libraryPreview\"><h3>Select a play</h3><p class=\"small\">Pick a play from the left to view the full board and notes.</p></div>'}</div></div>"
+          new_library = "${selected?libraryPreview(selected):''}<div class=\"libraryShell\"><h3>Plays</h3><div class=\"libraryGrid4\">${allMatching.map(p=>`<button class=\"libraryItem ${librarySelectedPlayId===p.id?'selected':''}\" onclick=\"selectLibraryPlay('${p.id}')\"><b>${safe(p.name)}</b><div class=\"small\">${safe(formations.find(f=>f.id===p.formationId)?.name||'Unknown')}</div><canvas class=\"libraryThumb\" id=\"thumb_${p.id}\" width=\"260\" height=\"140\"></canvas></button>`).join('')||'<p class=\"small\">No plays found.</p>'}</div></div>"
+          if old_library not in s:
+              raise SystemExit('Could not find existing Library markup.')
+          s = s.replace(old_library, new_library)
+
+          old_pointer = "if(mode==='play'){const hit=hitPlayer(m.x,m.y);if(hit){selectedPlayer=hit;if(playTool==='move')dragging=true;else{drawing=true;routePoints=[{x:hit.x,y:hit.y},m]}}}"
+          new_pointer = "if(mode==='play'){if(!currentFormation||!currentPlay)return;const hit=hitPlayer(m.x,m.y);if(playTool==='delete'){if(hit){currentFormation.players=currentFormation.players.filter(p=>p.id!==hit.id);if(currentPlay.routes)delete currentPlay.routes[hit.id];currentPlay.players=clone(currentFormation.players);selectedPlayer=null;savePlay(false);draw()}return}if(playTool==='addCircle'||playTool==='addSquare'||playTool==='addTriangle'){const shape=playTool==='addCircle'?'circle':playTool==='addSquare'?'square':'triangle';const p={id:uid(),shape,x:m.x,y:m.y,label:'P'+(currentFormation.players.length+1),name:'',color:'#2563eb'};currentFormation.players.push(p);currentPlay.players=clone(currentFormation.players);selectedPlayer=p;savePlay(false);fillPlayPlayerInputs();draw();return}if(hit){selectedPlayer=hit;fillPlayPlayerInputs();if(playTool==='move')dragging=true;else{drawing=true;routePoints=[{x:hit.x,y:hit.y},m]}}}"
+          if old_pointer not in s:
+              raise SystemExit('Could not find Play Creator pointer handler.')
+          s = s.replace(old_pointer, new_pointer)
+
+          marker = "function fillPlayerInputs(){if(!selectedPlayer)return;if(document.getElementById('pLabel'))document.getElementById('pLabel').value=selectedPlayer.label;if(document.getElementById('pName'))document.getElementById('pName').value=selectedPlayer.name;if(document.getElementById('pColor'))document.getElementById('pColor').value=selectedPlayer.color}"
+          extra = "function fillPlayPlayerInputs(){if(!selectedPlayer)return;if(document.getElementById('playPLabel'))document.getElementById('playPLabel').value=selectedPlayer.label;if(document.getElementById('playPName'))document.getElementById('playPName').value=selectedPlayer.name||'';if(document.getElementById('playPColor'))document.getElementById('playPColor').value=selectedPlayer.color||'#2563eb'}function updatePlayPlayer(){if(!selectedPlayer||!currentPlay||!currentFormation)return;selectedPlayer.label=document.getElementById('playPLabel').value||selectedPlayer.label;selectedPlayer.name=document.getElementById('playPName').value||'';selectedPlayer.color=document.getElementById('playPColor').value||'#2563eb';if(currentPlay.routes[selectedPlayer.id])currentPlay.routes[selectedPlayer.id].playerLabel=selectedPlayer.label;currentPlay.players=clone(currentFormation.players);savePlay(false);draw()}"
+          if marker not in s:
+              raise SystemExit('Could not find player input function.')
+          s = s.replace(marker, marker + extra)
+
+          path.write_text(s)
+          print('Patched index.html successfully.')
+          PY
+
+      - name: Commit updated page
+        shell: bash
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "No index.html changes were needed."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Add play player editing and four-column library"
+          git push
